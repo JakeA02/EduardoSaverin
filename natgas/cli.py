@@ -1,0 +1,353 @@
+"""Command-line interface."""
+
+from __future__ import annotations
+
+from datetime import date
+from pathlib import Path
+
+import pandas as pd
+import typer
+from rich.console import Console
+from rich.table import Table
+
+from natgas.config import ensure_dirs
+
+app = typer.Typer(help="Weather-driven natural gas storage forecasting")
+console = Console()
+
+
+@app.callback()
+def main() -> None:
+    ensure_dirs()
+
+
+ingest_app = typer.Typer(help="Data ingestion")
+app.add_typer(ingest_app, name="ingest")
+
+
+@ingest_app.command("eia")
+def ingest_eia_cmd(start: str = "2010-01-01") -> None:
+    from natgas.ingest.eia import ingest
+
+    df = ingest(start=start)
+    console.print(f"[green]EIA storage:[/green] {len(df)} weeks -> {df['week_ending'].min()} .. {df['week_ending'].max()}")
+
+
+@ingest_app.command("cpc")
+def ingest_cpc_cmd(start_year: int = 2010) -> None:
+    from natgas.ingest.cpc import ingest
+
+    df = ingest(start_year=start_year)
+    console.print(f"[green]CPC degree days:[/green] {len(df)} rows")
+
+
+@ingest_app.command("cpc-forecast")
+def ingest_cpc_forecast_cmd(start_year: int = 2020) -> None:
+    from natgas.ingest.cpc_forecast import ingest
+
+    df = ingest(start_year=start_year)
+    console.print(f"[green]CPC 7-day forecasts:[/green] {len(df)} rows, {df['issued'].nunique()} issue dates")
+
+
+@ingest_app.command("gfs")
+def ingest_gfs_cmd(
+    cycle: str = typer.Option(None, help="Cycle UTC, YYYY-MM-DDTHH (default: latest 00/06/12/18)"),
+) -> None:
+    from datetime import datetime, timezone
+
+    from natgas.ingest.nwp import fetch_cycle_division_dd
+
+    if cycle:
+        when = datetime.fromisoformat(cycle).replace(tzinfo=timezone.utc)
+    else:
+        now = datetime.now(timezone.utc)
+        hour = (now.hour // 6) * 6
+        when = now.replace(hour=hour, minute=0, second=0, microsecond=0)
+    df = fetch_cycle_division_dd(when.replace(tzinfo=None))
+    out = Path("data/interim/gfs_latest.parquet")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(out, index=False)
+    console.print(f"[green]GFS division DD:[/green] {len(df)} rows -> {out}")
+
+
+@ingest_app.command("consensus")
+def ingest_consensus_cmd() -> None:
+    """Fetch public analyst survey estimates (Trading Economics; Investing.com if reachable)."""
+    from natgas.ingest.consensus import ingest
+
+    df = ingest()
+    if df.empty:
+        console.print("[yellow]No consensus rows yet.[/yellow] Check network access to Trading Economics.")
+        raise typer.Exit(1)
+    last = df.iloc[-1]
+    console.print(
+        f"[green]Consensus:[/green] {len(df)} weeks "
+        f"({df['week_ending'].min()} .. {df['week_ending'].max()}) "
+        f"latest {last['consensus_median']:.1f} Bcf [{last['source']}]"
+    )
+
+
+@ingest_app.command("balance")
+def ingest_balance_cmd() -> None:
+    from natgas.ingest.balance import ingest_balance_terms, save_balance_snapshot
+
+    df = ingest_balance_terms()
+    path = save_balance_snapshot(df)
+    console.print(f"[green]Balance terms saved:[/green] {path}")
+
+
+@app.command("build-panel")
+def build_panel_cmd(refresh: bool = typer.Option(False, help="Re-fetch all raw data")) -> None:
+    from natgas.features.balance import build_panel
+
+    panel = build_panel(refresh=refresh)
+    console.print(f"[green]weekly_panel:[/green] {len(panel)} rows in DuckDB")
+
+
+@app.command("train")
+def train_cmd(
+    output: Path = typer.Option(Path("data/interim/model.joblib"), help="Model output path"),
+    model: str = typer.Option("ols", help="Model type: ols or lgbm"),
+) -> None:
+    import joblib
+
+    from natgas.features.balance import load_panel
+    from natgas.models.baseline import fit_baseline_ols
+    from natgas.models.ensemble import fit_lightgbm
+
+    panel = load_panel()
+    if model == "lgbm":
+        fitted = fit_lightgbm(panel)
+    else:
+        fitted = fit_baseline_ols(panel)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(fitted, output)
+    console.print(f"[green]Trained[/green] {fitted.name} on {len(panel)} weeks -> {output}")
+
+
+@app.command("backtest")
+def backtest_cmd(
+    n_splits: int = 5,
+    model: str = typer.Option("ols", help="Model type: ols or lgbm"),
+    output: Path = typer.Option(Path("data/interim/backtest.parquet"), help="Predictions output"),
+) -> None:
+    from natgas.features.balance import load_panel
+    from natgas.models.evaluate import run_backtest
+
+    panel = load_panel()
+    result = run_backtest(panel, n_splits=n_splits, model_type=model)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    result.predictions.to_parquet(output, index=False)
+
+    table = Table(title="Backtest Results (MAE in Bcf)")
+    table.add_column("Metric")
+    table.add_column("Value")
+    table.add_row("Model MAE", f"{result.model_mae:.2f}")
+    table.add_row("Naive seasonal MAE", f"{result.naive_mae:.2f}")
+    table.add_row("Bias (pred − actual)", f"{result.bias:+.2f}")
+    table.add_row("Winter model MAE", f"{result.winter_model_mae:.2f}" if result.winter_model_mae else "n/a")
+    table.add_row("Fold MAEs", ", ".join(f"{m:.2f}" for m in result.fold_mae))
+    console.print(table)
+    console.print(f"Predictions saved to {output}")
+
+
+@app.command("forecast-backtest")
+def forecast_backtest_cmd(
+    as_of: str = typer.Option("saturday", help="saturday (week-start) or wednesday (mid-week)"),
+    model: str = "ols",
+    output: Path = Path("data/interim/forecast_backtest.parquet"),
+    observed_path: Path = Path("data/interim/backtest.parquet"),
+) -> None:
+    from natgas.features.balance import load_panel
+    from natgas.ingest.cpc import load_latest_daily
+    from natgas.ingest.cpc_forecast import load_latest_vintage
+    from natgas.models.forecast import run_forecast_backtest
+
+    panel = load_panel()
+    observed = load_latest_daily()
+    forecasts = load_latest_vintage()
+    result = run_forecast_backtest(panel, observed, forecasts, as_of=as_of, model_type=model)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    result.predictions.to_parquet(output, index=False)
+
+    obs_mae = None
+    if observed_path.exists():
+        obs = pd.read_parquet(observed_path)
+        obs["week_ending"] = pd.to_datetime(obs["week_ending"]).dt.date
+        fcst = result.predictions.copy()
+        fcst["week_ending"] = pd.to_datetime(fcst["week_ending"]).dt.date
+        both = obs.merge(fcst, on="week_ending", suffixes=("_obs", "_fcst"))
+        if not both.empty:
+            obs_mae = float((both["predicted_obs"] - both["storage_change_bcf_obs"]).abs().mean())
+
+    table = Table(title=f"Phase 3 Forecast-Weather Backtest (as-of {as_of})")
+    table.add_column("Metric")
+    table.add_column("Value")
+    table.add_row("Forecast-weather MAE", f"{result.model_mae:.2f}")
+    if obs_mae is not None:
+        table.add_row("Observed-weather MAE (same weeks)", f"{obs_mae:.2f}")
+        table.add_row("Weather-error penalty", f"{result.model_mae - obs_mae:+.2f}")
+    table.add_row("Naive seasonal MAE", f"{result.naive_mae:.2f}")
+    table.add_row("Bias (pred − actual)", f"{result.bias:+.2f}")
+    table.add_row("Winter MAE", f"{result.winter_model_mae:.2f}" if result.winter_model_mae else "n/a")
+    table.add_row("Weeks scored", str(len(result.predictions)))
+    table.add_row("Fold MAEs", ", ".join(f"{m:.2f}" for m in result.fold_mae))
+    console.print(table)
+    console.print(f"Predictions saved to {output}")
+
+
+@app.command("predict")
+def predict_cmd(
+    week_ending: str = typer.Option(None, help="Target week ending (YYYY-MM-DD); default: current EIA target week"),
+    model_path: Path = Path("data/interim/model.joblib"),
+    source: str = typer.Option("cpc-forecast", help="observed or cpc-forecast"),
+) -> None:
+    import joblib
+
+    from natgas.calendar import current_target_week
+    from natgas.features.balance import load_panel
+    from natgas.features.blend import blend_week_daily, week_totals
+    from natgas.models.baseline import predict as predict_ols
+    from natgas.models.ensemble import predict as predict_lgbm
+    from natgas.predictions import log_prediction
+
+    target = date.fromisoformat(week_ending) if week_ending else current_target_week()
+    panel = load_panel()
+    panel["week_ending"] = pd.to_datetime(panel["week_ending"]).dt.date
+    model = joblib.load(model_path)
+    latest = panel[panel["week_ending"] <= target].tail(1).copy()
+    if latest.empty:
+        raise typer.Exit("No panel data for target week.")
+
+    nwp_source = "observed_weather"
+    nwp_cycle = None
+    if source == "cpc-forecast":
+        try:
+            from natgas.ingest.cpc import load_latest_daily
+            from natgas.ingest.cpc_forecast import fetch_latest, load_latest_vintage
+
+            observed = load_latest_daily()
+            try:
+                forecasts = load_latest_vintage()
+            except FileNotFoundError:
+                forecasts = fetch_latest()
+            latest_issue = pd.to_datetime(forecasts["issued"]).max().date()
+            daily = blend_week_daily(target, date.today(), observed, forecasts)
+            totals = week_totals(daily)
+            if not any(pd.isna(v) for v in totals.values()):
+                for k, v in totals.items():
+                    latest[k] = v
+                nwp_source = "cpc-ndfd"
+                nwp_cycle = latest_issue.isoformat()
+        except Exception as exc:
+            console.print(f"[yellow]Forecast blend failed ({exc}); using observed weather.[/yellow]")
+
+    if hasattr(model, "pipeline"):
+        y_hat = float(predict_ols(model, latest)[0])
+        model_name = model.name
+    else:
+        y_hat = float(predict_lgbm(model, latest)[0])
+        model_name = model.name
+
+    lo = y_hat + float(getattr(model, "residual_q05", -20.0))
+    hi = y_hat + float(getattr(model, "residual_q95", 20.0))
+    path = log_prediction(
+        target_week_ending=target.isoformat(),
+        model_version=model_name,
+        predicted_change_bcf=y_hat,
+        nwp_cycle=nwp_cycle,
+        nwp_source=nwp_source,
+        prediction_interval_90=(lo, hi),
+    )
+    console.print(
+        f"[green]Prediction:[/green] {y_hat:.1f} Bcf "
+        f"(90% [{lo:.1f}, {hi:.1f}]) week ending {target} [{nwp_source}] -> {path}"
+    )
+
+
+@app.command("init-db")
+def init_db_cmd() -> None:
+    from natgas.db import init_schema
+
+    init_schema()
+    console.print("[green]DuckDB schema initialized.[/green]")
+
+
+@app.command("consensus")
+def consensus_cmd(
+    week_ending: str = typer.Argument(..., help="Target Friday YYYY-MM-DD"),
+    median: float = typer.Argument(..., help="Consensus median Bcf change"),
+    low: float | None = typer.Option(None),
+    high: float | None = typer.Option(None),
+    source: str = "manual",
+) -> None:
+    """Log analyst consensus AFTER the model prediction. Never feeds the model."""
+    from natgas.ingest.consensus import append_consensus
+
+    path = append_consensus(week_ending, median, low=low, high=high, source=source)
+    console.print(f"[green]Consensus logged[/green] {median:.1f} Bcf for {week_ending} -> {path}")
+
+
+@app.command("benchmark")
+def benchmark_cmd(
+    backtest_path: Path = Path("data/interim/forecast_backtest.parquet"),
+) -> None:
+    from natgas.ingest.consensus import load_consensus
+    from natgas.models.consensus_eval import evaluate_vs_consensus
+
+    path = backtest_path
+    if not path.exists():
+        path = Path("data/interim/backtest.parquet")
+    if not path.exists():
+        console.print("[red]No backtest file. Run natgas forecast-backtest or natgas backtest.[/red]")
+        raise typer.Exit(1)
+
+    pred_df = pd.read_parquet(path)
+    consensus = load_consensus()
+    if consensus.empty:
+        console.print(
+            "[yellow]Phase 4 gate needs analyst consensus.[/yellow] "
+            "Add rows via `natgas consensus WEEK MEDIAN` or data/raw/consensus/consensus.csv"
+        )
+        raise typer.Exit(1)
+
+    report = evaluate_vs_consensus(pred_df, consensus)
+    table = Table(title="Phase 4 Gate vs Analyst Consensus")
+    table.add_column("Metric")
+    table.add_column("Value")
+    table.add_row("Overlapping weeks", str(report.n_weeks))
+    table.add_row("Model MAE", f"{report.model_mae:.2f} Bcf")
+    table.add_row("Consensus MAE", f"{report.consensus_mae:.2f} Bcf")
+    table.add_row(
+        "Rolling 26w model MAE",
+        f"{report.rolling_26_model_mae:.2f}" if report.rolling_26_model_mae is not None else "n/a",
+    )
+    table.add_row(
+        "Rolling 26w consensus MAE",
+        f"{report.rolling_26_consensus_mae:.2f}" if report.rolling_26_consensus_mae is not None else "n/a",
+    )
+    table.add_row("Surprise direction hit rate", f"{report.surprise_hit_rate:.1%}")
+    table.add_row(
+        f"Large-surprise hit (|Δ|>5 Bcf, n={report.large_surprise_n})",
+        f"{report.large_surprise_hit_rate:.1%}" if report.large_surprise_hit_rate is not None else "n/a",
+    )
+    table.add_row(
+        "90% interval coverage",
+        f"{report.interval_coverage_90:.1%}" if report.interval_coverage_90 is not None else "n/a",
+    )
+    table.add_row("Gate", "PASS" if report.gate_pass else ("FAIL" if report.gate_pass is False else "INCOMPLETE"))
+    console.print(table)
+    console.print(report.gate_reason)
+
+
+@app.command("dashboard")
+def dashboard_cmd(output: Path = Path("dashboard")) -> None:
+    """Write a static dashboard (predictions vs consensus vs EIA actuals)."""
+    from natgas.dashboard import generate
+
+    path = generate(output)
+    console.print(f"[green]Dashboard:[/green] {path}")
+
+
+if __name__ == "__main__":
+    app()

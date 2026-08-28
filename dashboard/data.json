@@ -1,0 +1,50 @@
+{
+  "generated_at": "2026-08-28 14:56 UTC",
+  "latest": {
+    "week_ending": "2026-08-21",
+    "predicted": null,
+    "consensus": 20.0,
+    "actual": 15.0,
+    "source": "tradingeconomics",
+    "model_version": null,
+    "model_minus_consensus": null
+  },
+  "gate": {
+    "n_weeks": 0,
+    "model_mae": null,
+    "consensus_mae": null,
+    "rolling_26_model_mae": null,
+    "rolling_26_consensus_mae": null,
+    "surprise_hit_rate": null,
+    "gate_pass": null,
+    "gate_reason": "Waiting for overlapping model predictions, consensus, and EIA actuals."
+  },
+  "series": [
+    {
+      "week_ending": "2026-08-07",
+      "predicted": null,
+      "consensus": 31.0,
+      "actual": 36.0,
+      "source": "tradingeconomics",
+      "model_version": null
+    },
+    {
+      "week_ending": "2026-08-14",
+      "predicted": null,
+      "consensus": 19.0,
+      "actual": 16.0,
+      "source": "tradingeconomics",
+      "model_version": null
+    },
+    {
+      "week_ending": "2026-08-21",
+      "predicted": null,
+      "consensus": 20.0,
+      "actual": 15.0,
+      "source": "tradingeconomics",
+      "model_version": null
+    }
+  ],
+  "n_consensus_weeks": 3,
+  "n_predictions": 0
+}

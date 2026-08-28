@@ -1,0 +1,77 @@
+name: Forecast Pipeline
+
+on:
+  schedule:
+    # ~90 min after 00/06/12/18Z GFS cycles
+    - cron: "30 2,8,14,20 * * *"
+    # Consensus typically prints Tuesday–Wednesday; extra pass before the EIA 10:30 ET release
+    - cron: "0 12,14,16 * * 2,3,4"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Init and ingest
+        env:
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+        run: |
+          uv run natgas init-db
+          uv run natgas ingest eia
+          uv run natgas ingest cpc
+          uv run natgas ingest cpc-forecast --start-year 2024
+          uv run natgas ingest consensus || echo "consensus ingest skipped"
+          uv run natgas build-panel
+
+      - name: Train and predict (forecast weather)
+        run: |
+          uv run natgas train
+          uv run natgas predict --source cpc-forecast
+
+      - name: Refresh dashboard
+        env:
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+        run: uv run natgas dashboard
+
+      - uses: actions/configure-pages@v5
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        continue-on-error: true
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        continue-on-error: true
+        with:
+          path: dashboard
+
+      - name: Commit logs, consensus, and dashboard
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add logs/predictions/ data/consensus/ dashboard/
+          git diff --staged --quiet || git commit -m "ops: $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push
+
+  pages:
+    needs: predict
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
