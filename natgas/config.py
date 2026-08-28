@@ -14,6 +14,7 @@ DATA_DIR = ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 INTERIM_DIR = DATA_DIR / "interim"
 CONSENSUS_DIR = DATA_DIR / "consensus"
+PAPER_DIR = DATA_DIR / "paper"
 LOGS_DIR = ROOT / "logs" / "predictions"
 DASHBOARD_DIR = ROOT / "dashboard"
 WAREHOUSE_PATH = DATA_DIR / "warehouse.duckdb"
@@ -50,5 +51,5 @@ DEFAULT_GAS_HEATING_SHARE = {
 
 
 def ensure_dirs() -> None:
-    for path in (RAW_DIR, INTERIM_DIR, CONSENSUS_DIR, LOGS_DIR, DASHBOARD_DIR, DATA_DIR):
+    for path in (RAW_DIR, INTERIM_DIR, CONSENSUS_DIR, PAPER_DIR, LOGS_DIR, DASHBOARD_DIR, DATA_DIR):
         path.mkdir(parents=True, exist_ok=True)

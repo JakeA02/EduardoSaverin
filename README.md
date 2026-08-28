@@ -60,6 +60,7 @@ tests/            Unit tests
 | `natgas backtest` | Time-series CV; reports MAE in Bcf |
 | `natgas backtest --model lgbm` | Same, with gradient boosting |
 | `natgas ingest consensus` | Pull Trading Economics survey estimates (Investing.com if reachable) |
+| `natgas paper` | Open/settle QG paper trades from prediction vs consensus |
 | `natgas dashboard` | Write static dashboard to `dashboard/` |
 | `natgas benchmark` | Compare backtest vs analyst consensus (Phase 4 gate) |
 | `natgas predict` | Log a prediction for the target week |
@@ -79,7 +80,22 @@ Manual override still works and is never overwritten by the scraper:
 uv run natgas consensus 2026-08-22 -58 --low -65 --high -50 --source manual
 ```
 
-Your model must beat consensus rolling 26-week MAE before moving to paper trading (Phase 5).
+Your model must beat consensus rolling 26-week MAE before **live** capital (Phase 6). Paper trading starts now so the ledger exists before that gate.
+
+## Paper trading
+
+Hypothetical **QG** (E-mini NG) trades from predicted surprise vs consensus. Rules live in `natgas/signal/translate.py` and are executed by `natgas paper` on GitHub Actions. The ledger is `data/paper/trades.csv`.
+
+- Long QG if the model expects a *tighter* print than the street (predicted − consensus ≤ −5 Bcf)
+- Short QG if it expects a *fatter* injection (≥ +5 Bcf)
+- 1 contract in the 5–15 Bcf band, 2 contracts above 15, otherwise flat
+Fills use EIA Henry Hub spot (RNGWHHD) as a proxy for NG settlement; the official print can lag 1–2 sessions, so a working order may stay open over a weekend.
+- This is **not** a live IBKR account — settlement-price P&L only
+
+```bash
+uv run natgas paper --hindcast
+uv run natgas dashboard
+```
 
 ## Tests
 

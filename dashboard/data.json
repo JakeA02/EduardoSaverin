@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-28 15:07 UTC",
+  "generated_at": "2026-08-28 15:24 UTC",
   "latest": {
     "week_ending": "2026-08-28",
     "predicted": 50.95343876968746,
@@ -54,5 +54,65 @@
     }
   ],
   "n_consensus_weeks": 3,
-  "n_predictions": 1
+  "n_predictions": 1,
+  "paper": {
+    "strategy": "surprise-qg-v0.1",
+    "n_settled": 2,
+    "n_open": 1,
+    "n_skipped": 0,
+    "cumulative_pnl_usd": 0.0,
+    "win_rate": 0.0,
+    "reasoning_hit_rate": 0.5,
+    "consecutive_losses": 0,
+    "latest_open": {
+      "week_ending": "2026-08-21",
+      "side": "short",
+      "n_contracts": 1,
+      "predicted_surprise": 14.528021352017376
+    },
+    "trades": [
+      {
+        "week_ending": "2026-08-07",
+        "status": "settled",
+        "side": "flat",
+        "n_contracts": 0,
+        "predicted_surprise": 4.788108872639995,
+        "actual_surprise": 5.0,
+        "entry_price": 2.82,
+        "exit_price": 2.82,
+        "pnl_usd": 0.0,
+        "reasoning_ok": true,
+        "note": "|surprise| 4.8 Bcf \u2264 5 deadband; flat, $0",
+        "source": "hindcast"
+      },
+      {
+        "week_ending": "2026-08-14",
+        "status": "settled",
+        "side": "flat",
+        "n_contracts": 0,
+        "predicted_surprise": 4.310076718710963,
+        "actual_surprise": -3.0,
+        "entry_price": 2.94,
+        "exit_price": 2.94,
+        "pnl_usd": 0.0,
+        "reasoning_ok": false,
+        "note": "|surprise| 4.3 Bcf \u2264 5 deadband; flat, $0",
+        "source": "hindcast"
+      },
+      {
+        "week_ending": "2026-08-21",
+        "status": "open",
+        "side": "short",
+        "n_contracts": 1,
+        "predicted_surprise": 14.528021352017376,
+        "actual_surprise": null,
+        "entry_price": null,
+        "exit_price": null,
+        "pnl_usd": null,
+        "reasoning_ok": null,
+        "note": "standard short 1 QG on +14.5 Bcf predicted surprise",
+        "source": "hindcast"
+      }
+    ]
+  }
 }

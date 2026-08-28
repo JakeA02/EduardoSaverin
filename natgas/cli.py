@@ -340,6 +340,44 @@ def benchmark_cmd(
     console.print(report.gate_reason)
 
 
+@app.command("paper")
+def paper_cmd(
+    hindcast: bool = typer.Option(
+        False,
+        help="Also settle historical weeks using the OLS backtest where no live log exists",
+    ),
+) -> None:
+    """Open/settle the QG paper ledger from the latest prediction + consensus."""
+    from natgas.signal.paper import paper_summary, sync_paper
+
+    ledger = sync_paper(hindcast=hindcast)
+    summary = paper_summary(ledger)
+    table = Table(title="Paper ledger (QG, settlement fills)")
+    table.add_column("Metric")
+    table.add_column("Value")
+    table.add_row("Settled weeks", str(summary["n_settled"]))
+    table.add_row("Open", str(summary["n_open"]))
+    table.add_row("Skipped", str(summary["n_skipped"]))
+    table.add_row("Cumulative P&L", f"${summary['cumulative_pnl_usd']:,.0f}")
+    table.add_row(
+        "Win rate",
+        f"{summary['win_rate']:.0%}" if summary["win_rate"] is not None else "n/a",
+    )
+    table.add_row(
+        "Reasoning hit",
+        f"{summary['reasoning_hit_rate']:.0%}" if summary["reasoning_hit_rate"] is not None else "n/a",
+    )
+    table.add_row("Consecutive losses", str(summary["consecutive_losses"]))
+    if summary["latest_open"]:
+        open_ = summary["latest_open"]
+        table.add_row(
+            "Working order",
+            f"{open_['side']} {open_['n_contracts']} QG · {open_['week_ending']} · "
+            f"surprise {open_['predicted_surprise']:+.1f}",
+        )
+    console.print(table)
+
+
 @app.command("dashboard")
 def dashboard_cmd(output: Path = Path("dashboard")) -> None:
     """Write a static dashboard (predictions vs consensus vs EIA actuals)."""

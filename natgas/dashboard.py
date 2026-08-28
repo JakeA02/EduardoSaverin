@@ -93,18 +93,42 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
         <tbody id="rows"></tbody>
       </table>
     </div>
+    <div class="card" style="margin-top:16px; overflow-x:auto">
+      <div class="label" style="margin-bottom:8px">Paper trades (QG, Wed close → Thu close)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Week</th><th>Status</th><th>Side</th><th>n</th>
+            <th>Pred surprise</th><th>Actual surprise</th>
+            <th>Entry</th><th>Exit</th><th>P&L</th><th>Reasoning</th>
+          </tr>
+        </thead>
+        <tbody id="paper-rows"></tbody>
+      </table>
+    </div>
     <p class="note">
       Consensus is logged independently of the model and never used as a feature.
       Street surveys (Reuters/NGI) are paywalled; the automated series is the
       Trading Economics economist survey, ingested on GitHub Actions.
       The gate requires 26 overlapping weeks with rolling MAE below consensus
-      and surprise-direction hit rate above 50%.
+      and surprise-direction hit rate above 50%. Paper trading is a QG overlay
+      on predicted surprise versus consensus; it does not wait for the gate.
+      Rules are in <code>natgas/signal/translate.py</code>. Ledger:
+      <code>data/paper/trades.csv</code>.
     </p>
   </main>
   <script>
     const payload = __PAYLOAD__;
     const fmt = (v, d=1) => v == null || Number.isNaN(v) ? "—" : Number(v).toFixed(d);
     const sign = (v) => v == null ? "—" : (v > 0 ? "+" : "") + Number(v).toFixed(1);
+    const money = (v) => v == null || Number.isNaN(v) ? "—" : (v < 0 ? "-$" : "$") + Math.abs(Number(v)).toFixed(0);
+    const paper = payload.paper || {};
+    const paperBook = (p) => {
+      if (p.latest_open && p.latest_open.side && p.latest_open.side !== "flat") {
+        return (p.latest_open.side + " " + p.latest_open.n_contracts + " QG").toUpperCase();
+      }
+      return (p.n_open ? p.n_open + " open" : "flat");
+    };
     document.getElementById("updated").textContent = payload.generated_at || "n/a";
 
     const latest = payload.latest || {};
@@ -114,6 +138,8 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
       ["Consensus", sign(latest.consensus), latest.source || ""],
       ["EIA actual", sign(latest.actual), latest.actual == null ? "awaiting Thursday print" : "Bcf change"],
       ["Model − cons", sign(latest.model_minus_consensus), "Bcf"],
+      ["Paper P&L", money(paper.cumulative_pnl_usd), paper.n_settled ? (paper.n_settled + " settled weeks") : "no fills yet"],
+      ["Paper book", paperBook(paper), paper.strategy || "surprise-qg-v0.1"],
     ];
     document.getElementById("kpis").innerHTML = kpis.map(([label, value, sub]) =>
       `<div class="card"><div class="label">${label}</div><div class="value">${value}</div><div class="sub">${sub}</div></div>`
@@ -162,6 +188,18 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
         <td>${sign(surprise)}</td><td>${r.source || ""}</td>
       </tr>`;
     }).join("");
+
+    const paperRows = (paper.trades || []).slice().reverse();
+    document.getElementById("paper-rows").innerHTML = paperRows.map(r => {
+      const reason = r.reasoning_ok == null ? "—" : (r.reasoning_ok ? "held" : "failed");
+      return `<tr>
+        <td>${r.week_ending}</td><td>${r.status}</td>
+        <td>${r.side}</td><td>${r.n_contracts}</td>
+        <td>${sign(r.predicted_surprise)}</td><td>${sign(r.actual_surprise)}</td>
+        <td>${fmt(r.entry_price, 3)}</td><td>${fmt(r.exit_price, 3)}</td>
+        <td>${money(r.pnl_usd)}</td><td>${reason}</td>
+      </tr>`;
+    }).join("") || `<tr><td colspan="10">No paper rows yet — waiting for consensus + a model log.</td></tr>`;
   </script>
 </body>
 </html>
@@ -272,7 +310,28 @@ def build_payload() -> dict:
         "series": series[-52:],
         "n_consensus_weeks": 0 if consensus.empty else len(consensus),
         "n_predictions": 0 if preds.empty else len(preds),
+        "paper": _paper_payload(),
     }
+
+
+def _paper_payload() -> dict:
+    try:
+        from natgas.signal.paper import paper_summary
+
+        return paper_summary()
+    except (OSError, ValueError):
+        return {
+            "strategy": "surprise-qg-v0.1",
+            "n_settled": 0,
+            "n_open": 0,
+            "n_skipped": 0,
+            "cumulative_pnl_usd": 0.0,
+            "win_rate": None,
+            "reasoning_hit_rate": None,
+            "consecutive_losses": 0,
+            "latest_open": None,
+            "trades": [],
+        }
 
 
 def generate(output_dir: Path | None = None) -> Path:

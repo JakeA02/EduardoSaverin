@@ -12,3 +12,4 @@ data/warehouse.duckdb.wal
 *.grib2
 .DS_Store
 .vercel/
+.vercel
