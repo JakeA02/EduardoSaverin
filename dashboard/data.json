@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-08-28 14:56 UTC",
+  "generated_at": "2026-08-28 15:07 UTC",
   "latest": {
-    "week_ending": "2026-08-21",
-    "predicted": null,
-    "consensus": 20.0,
-    "actual": 15.0,
-    "source": "tradingeconomics",
-    "model_version": null,
+    "week_ending": "2026-08-28",
+    "predicted": 50.95343876968746,
+    "consensus": null,
+    "actual": null,
+    "source": null,
+    "model_version": "baseline-ols-v0.2-calibrated",
     "model_minus_consensus": null
   },
   "gate": {
@@ -43,8 +43,16 @@
       "actual": 15.0,
       "source": "tradingeconomics",
       "model_version": null
+    },
+    {
+      "week_ending": "2026-08-28",
+      "predicted": 50.95343876968746,
+      "consensus": null,
+      "actual": null,
+      "source": null,
+      "model_version": "baseline-ols-v0.2-calibrated"
     }
   ],
   "n_consensus_weeks": 3,
-  "n_predictions": 0
+  "n_predictions": 1
 }
