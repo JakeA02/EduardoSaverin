@@ -35,7 +35,9 @@ uv run natgas backtest --model lgbm
 
 CPC degree days and NOAA GFS/GEFS (via Herbie) require no API keys.
 
-The pipeline is meant to run unattended on **GitHub Actions** (already in `.github/workflows/forecast.yml`). Set `EIA_API_KEY` as a repository secret. Each run ingests EIA + weather + consensus, writes a prediction, and refreshes `dashboard/`. Enable **GitHub Pages** (Settings → Pages → Source: GitHub Actions) or point **Vercel** at this repo — `vercel.json` serves the prebuilt `dashboard/` folder.
+The pipeline runs unattended on **GitHub Actions** ([Forecast Pipeline](https://github.com/JakeA02/EduardoSaverin/actions)). Each run ingests EIA + weather + consensus, writes a prediction, refreshes `dashboard/`, and deploys it.
+
+**Live dashboard:** https://eduardo-saverin-rouge.vercel.app
 
 ## Project layout
 

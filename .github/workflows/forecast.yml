@@ -10,8 +10,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
   predict:
@@ -47,15 +45,6 @@ jobs:
           EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
         run: uv run natgas dashboard
 
-      - uses: actions/configure-pages@v5
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        continue-on-error: true
-      - uses: actions/upload-pages-artifact@v3
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        continue-on-error: true
-        with:
-          path: dashboard
-
       - name: Commit logs, consensus, and dashboard
         run: |
           git config user.name "github-actions[bot]"
@@ -64,14 +53,14 @@ jobs:
           git diff --staged --quiet || git commit -m "ops: $(date -u +%Y-%m-%dT%H:%MZ)"
           git push
 
-  pages:
-    needs: predict
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    continue-on-error: true
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy dashboard to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "VERCEL_TOKEN unset; dashboard is in git. Connect the GitHub repo in Vercel to auto-deploy."
+            exit 0
+          fi
+          npx vercel@41 deploy --prod --yes --token "$VERCEL_TOKEN"
