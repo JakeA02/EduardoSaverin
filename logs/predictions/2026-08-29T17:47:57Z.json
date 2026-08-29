@@ -1,0 +1,14 @@
+{
+  "ts_utc": "2026-08-29T17:47:57Z",
+  "target_week_ending": "2026-08-28",
+  "model_version": "baseline-ols-v0.2-calibrated",
+  "nwp_cycle": "2026-08-29",
+  "nwp_source": "cpc-ndfd",
+  "predicted_change_bcf": 52.31243117358942,
+  "prediction_interval_90": [
+    20.25868655163768,
+    84.07302671314898
+  ],
+  "consensus_median": null,
+  "actual": null
+}
