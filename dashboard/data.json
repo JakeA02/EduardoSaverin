@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-31 08:49 UTC",
+  "generated_at": "2026-08-31 20:16 UTC",
   "latest": {
     "week_ending": "2026-08-28",
-    "predicted": 43.325520353510136,
+    "predicted": 43.049351539007255,
     "consensus": null,
     "actual": null,
     "source": null,
@@ -46,7 +46,7 @@
     },
     {
       "week_ending": "2026-08-28",
-      "predicted": 43.325520353510136,
+      "predicted": 43.049351539007255,
       "consensus": null,
       "actual": null,
       "source": null,
