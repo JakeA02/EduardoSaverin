@@ -18,7 +18,7 @@ HEADERS = {
     )
 }
 STOOQ_URL = "https://stooq.com/q/d/l/?s=ng.f&i=d"
-YAHOO_URL = "https://query1.finance.yahoo.com/v8/finance/chart/NG=F"
+YAHOO_URL = "https://query2.finance.yahoo.com/v8/finance/chart/NG=F"
 CACHE_PATH = INTERIM_DIR / "ng_front_daily.parquet"
 
 
@@ -69,6 +69,51 @@ def _newest(frames: list[pd.DataFrame]) -> pd.DataFrame:
     return max(alive, key=lambda f: f["date"].max())
 
 
+def _merge_closes(*frames: pd.DataFrame) -> pd.DataFrame:
+    """Combine daily closes; earlier frames win on duplicate dates (EIA preferred)."""
+    alive = [f for f in frames if not f.empty]
+    if not alive:
+        return pd.DataFrame(columns=["date", "close"])
+    combined = pd.concat(alive, ignore_index=True)
+    return combined.drop_duplicates("date", keep="first").sort_values("date").reset_index(drop=True)
+
+
+def _fetch_stooq() -> pd.DataFrame:
+    try:
+        resp = requests.get(STOOQ_URL, headers=HEADERS, timeout=45)
+        if resp.status_code == 200 and "Date" in resp.text[:80]:
+            df = _parse_stooq(resp.text)
+            if len(df) > 50:
+                return df
+    except requests.RequestException:
+        pass
+    return pd.DataFrame(columns=["date", "close"])
+
+
+def _fetch_yahoo() -> pd.DataFrame:
+    import time
+
+    for attempt in range(3):
+        try:
+            resp = requests.get(
+                YAHOO_URL,
+                headers=HEADERS,
+                params={"interval": "1d", "range": "5y"},
+                timeout=45,
+            )
+            if resp.status_code == 429:
+                time.sleep(2 * (attempt + 1))
+                continue
+            resp.raise_for_status()
+            df = _parse_yahoo(resp.json())
+            if not df.empty:
+                return df
+        except (requests.RequestException, ValueError):
+            if attempt < 2:
+                time.sleep(1)
+    return pd.DataFrame(columns=["date", "close"])
+
+
 def _parse_stooq(text: str) -> pd.DataFrame:
     df = pd.read_csv(StringIO(text))
     cols = {c.lower(): c for c in df.columns}
@@ -107,37 +152,21 @@ def _parse_yahoo(payload: dict) -> pd.DataFrame:
 
 
 def fetch_ng_closes() -> pd.DataFrame:
-    frames: list[pd.DataFrame] = []
+    eia_frames: list[pd.DataFrame] = []
     for series in ("RNGWHHD", "RNGC1"):
         try:
-            frames.append(_fetch_eia_series(series))
+            eia_frames.append(_fetch_eia_series(series))
         except (requests.RequestException, ValueError, KeyError):
             pass
-    eia = _newest(frames)
-    if not eia.empty:
+    eia = _newest(eia_frames)
+    fallback = _newest([_fetch_stooq(), _fetch_yahoo()])
+    if eia.empty:
+        return fallback
+    if fallback.empty:
         return eia
-    try:
-        resp = requests.get(STOOQ_URL, headers=HEADERS, timeout=45)
-        if resp.status_code == 200 and "Date" in resp.text[:80]:
-            df = _parse_stooq(resp.text)
-            if len(df) > 50:
-                return df
-    except requests.RequestException:
-        pass
-    try:
-        resp = requests.get(
-            YAHOO_URL,
-            headers=HEADERS,
-            params={"interval": "1d", "range": "5y"},
-            timeout=45,
-        )
-        resp.raise_for_status()
-        df = _parse_yahoo(resp.json())
-        if not df.empty:
-            return df
-    except (requests.RequestException, ValueError):
-        pass
-    return pd.DataFrame(columns=["date", "close"])
+    # EIA for history; Yahoo/Stooq fill gaps when spot lags (common around EIA week).
+    extra = fallback[~fallback["date"].isin(set(eia["date"])) | (fallback["date"] > eia["date"].max())]
+    return _merge_closes(eia, extra)
 
 
 def load_or_fetch_prices(*, refresh: bool = True) -> pd.DataFrame:
@@ -166,16 +195,30 @@ def close_on_or_before(prices: pd.DataFrame, day: date) -> tuple[date, float] | 
     return row["date"], float(row["close"])
 
 
+def close_on_or_after(prices: pd.DataFrame, day: date) -> tuple[date, float] | None:
+    if prices.empty:
+        return None
+    eligible = prices[prices["date"] >= day]
+    if eligible.empty:
+        return None
+    row = eligible.iloc[0]
+    return row["date"], float(row["close"])
+
+
 def entry_exit_fills(prices: pd.DataFrame, week_ending: date) -> dict | None:
     """Wednesday-or-prior close into Thursday close around the EIA print."""
     release = report_release_datetime(week_ending).date()
     entry_day = release - timedelta(days=1)
     entry = close_on_or_before(prices, entry_day)
     exit_ = close_on_or_before(prices, release)
+    if exit_ is None or exit_[0] < release:
+        exit_ = close_on_or_after(prices, release)
     if entry is None or exit_ is None:
         return None
-    # Don't settle until we have a Thursday (or later) print close.
+    # Don't settle until we have the print-day (or next session) close.
     if exit_[0] < release:
+        return None
+    if exit_[0] > release + timedelta(days=3):
         return None
     return {
         "entry_date": entry[0],

@@ -116,24 +116,26 @@ def backfill_outcomes(
     conn = connect()
     updated = 0
     if consensus_median is not None:
-        conn.execute(
+        rows = conn.execute(
             """
             UPDATE predictions
             SET consensus_median = ?
             WHERE target_week_ending = ? AND consensus_median IS NULL
+            RETURNING 1
             """,
             [consensus_median, target_week_ending],
-        )
-        updated += conn.execute("SELECT changes()").fetchone()[0]
+        ).fetchall()
+        updated += len(rows)
     if actual is not None:
-        conn.execute(
+        rows = conn.execute(
             """
             UPDATE predictions
             SET actual = ?
             WHERE target_week_ending = ? AND actual IS NULL
+            RETURNING 1
             """,
             [actual, target_week_ending],
-        )
-        updated += conn.execute("SELECT changes()").fetchone()[0]
+        ).fetchall()
+        updated += len(rows)
     conn.close()
     return updated
