@@ -90,6 +90,24 @@ def _fetch_stooq() -> pd.DataFrame:
     return pd.DataFrame(columns=["date", "close"])
 
 
+def _fetch_yfinance() -> pd.DataFrame:
+    try:
+        import yfinance as yf
+
+        hist = yf.Ticker("NG=F").history(start="2015-01-01", auto_adjust=False)
+        if hist.empty:
+            return pd.DataFrame(columns=["date", "close"])
+        out = pd.DataFrame(
+            {
+                "date": pd.to_datetime(hist.index, utc=True).date,
+                "close": pd.to_numeric(hist["Close"], errors="coerce"),
+            }
+        )
+        return out.dropna().drop_duplicates("date").sort_values("date").reset_index(drop=True)
+    except (ImportError, ValueError, KeyError, OSError):
+        return pd.DataFrame(columns=["date", "close"])
+
+
 def _fetch_yahoo() -> pd.DataFrame:
     import time
 
@@ -159,7 +177,7 @@ def fetch_ng_closes() -> pd.DataFrame:
         except (requests.RequestException, ValueError, KeyError):
             pass
     eia = _newest(eia_frames)
-    fallback = _newest([_fetch_stooq(), _fetch_yahoo()])
+    fallback = _newest([_fetch_yfinance(), _fetch_yahoo(), _fetch_stooq()])
     if eia.empty:
         return fallback
     if fallback.empty:
