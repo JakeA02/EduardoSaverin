@@ -1,69 +1,110 @@
 {
-  "generated_at": "2026-09-01 14:25 UTC",
+  "generated_at": "2026-09-03 19:36 UTC",
   "latest": {
-    "week_ending": "2026-08-28",
-    "predicted": 43.049351539007255,
+    "week_ending": "2026-09-04",
+    "predicted": 36.78452140722878,
+    "predicted_wn3": 12.0,
     "consensus": null,
     "actual": null,
     "source": null,
     "model_version": "baseline-ols-v0.2-calibrated",
+    "nwp_source": "cpc-ndfd",
+    "model_minus_consensus": null
+  },
+  "next_week": {
+    "week_ending": "2026-09-11",
+    "predicted": 41.66849089404771,
+    "predicted_wn3": 41.66849089404771,
+    "consensus": null,
+    "actual": null,
+    "source": null,
+    "model_version": "baseline-ols-v0.2-calibrated",
+    "nwp_source": "weathernext3",
     "model_minus_consensus": null
   },
   "gate": {
-    "n_weeks": 1,
-    "model_mae": 15.0,
-    "consensus_mae": 5.0,
+    "n_weeks": 0,
+    "model_mae": null,
+    "consensus_mae": null,
     "rolling_26_model_mae": null,
     "rolling_26_consensus_mae": null,
-    "surprise_hit_rate": 0.0,
+    "surprise_hit_rate": null,
     "gate_pass": null,
-    "gate_reason": "Need 26 overlapping weeks for the rolling gate; have 1."
+    "gate_reason": "Waiting for overlapping model predictions, consensus, and EIA actuals."
   },
   "series": [
     {
       "week_ending": "2026-08-07",
       "predicted": null,
+      "predicted_wn3": null,
       "consensus": 31.0,
       "actual": 36.0,
       "source": "tradingeconomics",
-      "model_version": null
+      "model_version": null,
+      "nwp_source": null
     },
     {
       "week_ending": "2026-08-14",
       "predicted": null,
+      "predicted_wn3": null,
       "consensus": 19.0,
       "actual": 16.0,
       "source": "tradingeconomics",
-      "model_version": null
+      "model_version": null,
+      "nwp_source": null
     },
     {
       "week_ending": "2026-08-21",
-      "predicted": 30.0,
+      "predicted": null,
+      "predicted_wn3": null,
       "consensus": 20.0,
       "actual": 15.0,
       "source": "tradingeconomics",
-      "model_version": "test"
+      "model_version": null,
+      "nwp_source": null
     },
     {
       "week_ending": "2026-08-28",
       "predicted": 43.049351539007255,
+      "predicted_wn3": null,
+      "consensus": 31.0,
+      "actual": null,
+      "source": "tradingeconomics",
+      "model_version": "baseline-ols-v0.2-calibrated",
+      "nwp_source": "cpc-ndfd"
+    },
+    {
+      "week_ending": "2026-09-04",
+      "predicted": 36.78452140722878,
+      "predicted_wn3": 12.0,
       "consensus": null,
       "actual": null,
       "source": null,
-      "model_version": "baseline-ols-v0.2-calibrated"
+      "model_version": "baseline-ols-v0.2-calibrated",
+      "nwp_source": "cpc-ndfd"
+    },
+    {
+      "week_ending": "2026-09-11",
+      "predicted": 41.66849089404771,
+      "predicted_wn3": 41.66849089404771,
+      "consensus": null,
+      "actual": null,
+      "source": null,
+      "model_version": "baseline-ols-v0.2-calibrated",
+      "nwp_source": "weathernext3"
     }
   ],
-  "n_consensus_weeks": 3,
-  "n_predictions": 2,
+  "n_consensus_weeks": 4,
+  "n_predictions": 3,
   "paper": {
     "strategy": "surprise-qg-v0.1",
-    "n_settled": 3,
+    "n_settled": 4,
     "n_open": 0,
     "n_skipped": 0,
-    "cumulative_pnl_usd": -167.5,
-    "win_rate": 0.0,
-    "reasoning_hit_rate": 0.3333333333333333,
-    "consecutive_losses": 1,
+    "cumulative_pnl_usd": -45.0,
+    "win_rate": 0.25,
+    "reasoning_hit_rate": 0.25,
+    "consecutive_losses": 0,
     "latest_open": null,
     "trades": [
       {
@@ -102,11 +143,25 @@
         "predicted_surprise": 14.528021352017376,
         "actual_surprise": -5.0,
         "entry_price": 2.8420000076293945,
-        "exit_price": 2.9070000648498535,
+        "exit_price": 2.907000064849853,
         "pnl_usd": -167.5,
         "reasoning_ok": false,
         "note": "standard short 1 QG on +14.5 Bcf predicted surprise; reasoning failed (lucky P&L possible)",
         "source": "hindcast"
+      },
+      {
+        "week_ending": "2026-08-28",
+        "status": "settled",
+        "side": "short",
+        "n_contracts": 1,
+        "predicted_surprise": 12.049351539007256,
+        "actual_surprise": -1.0,
+        "entry_price": 2.9560000896453857,
+        "exit_price": 2.9049999713897705,
+        "pnl_usd": 122.5,
+        "reasoning_ok": false,
+        "note": "standard short 1 QG on +12.0 Bcf predicted surprise; reasoning failed (lucky P&L possible)",
+        "source": "live"
       }
     ]
   }

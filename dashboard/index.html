@@ -71,7 +71,7 @@
       <table>
         <thead>
           <tr>
-            <th>Week ending</th><th>Model</th><th>Consensus</th><th>Actual</th>
+            <th>Week ending</th><th>Model</th><th>WN3</th><th>Consensus</th><th>Actual</th>
             <th>Model err</th><th>Cons err</th><th>Surprise</th><th>Source</th>
           </tr>
         </thead>
@@ -98,12 +98,16 @@
       The gate requires 26 overlapping weeks with rolling MAE below consensus
       and surprise-direction hit rate above 50%. Paper trading is a QG overlay
       on predicted surprise versus consensus; it does not wait for the gate.
+      WeatherNext 3 is an A/B forecast source (purple) and does not drive paper
+      trades. Next-week predictions require 7 complete forecast days — Maps
+      Weather API is 10 days, so week+1 is usually available from Wednesday;
+      full WeatherNext 3 (15 days) covers it from Saturday.
       Rules are in <code>natgas/signal/translate.py</code>. Ledger:
       <code>data/paper/trades.csv</code>.
     </p>
   </main>
   <script>
-    const payload = {"generated_at": "2026-09-01 14:25 UTC", "latest": {"week_ending": "2026-08-28", "predicted": 43.049351539007255, "consensus": null, "actual": null, "source": null, "model_version": "baseline-ols-v0.2-calibrated", "model_minus_consensus": null}, "gate": {"n_weeks": 1, "model_mae": 15.0, "consensus_mae": 5.0, "rolling_26_model_mae": null, "rolling_26_consensus_mae": null, "surprise_hit_rate": 0.0, "gate_pass": null, "gate_reason": "Need 26 overlapping weeks for the rolling gate; have 1."}, "series": [{"week_ending": "2026-08-07", "predicted": null, "consensus": 31.0, "actual": 36.0, "source": "tradingeconomics", "model_version": null}, {"week_ending": "2026-08-14", "predicted": null, "consensus": 19.0, "actual": 16.0, "source": "tradingeconomics", "model_version": null}, {"week_ending": "2026-08-21", "predicted": 30.0, "consensus": 20.0, "actual": 15.0, "source": "tradingeconomics", "model_version": "test"}, {"week_ending": "2026-08-28", "predicted": 43.049351539007255, "consensus": null, "actual": null, "source": null, "model_version": "baseline-ols-v0.2-calibrated"}], "n_consensus_weeks": 3, "n_predictions": 2, "paper": {"strategy": "surprise-qg-v0.1", "n_settled": 3, "n_open": 0, "n_skipped": 0, "cumulative_pnl_usd": -167.5, "win_rate": 0.0, "reasoning_hit_rate": 0.3333333333333333, "consecutive_losses": 1, "latest_open": null, "trades": [{"week_ending": "2026-08-07", "status": "settled", "side": "flat", "n_contracts": 0, "predicted_surprise": 4.788108872639995, "actual_surprise": 5.0, "entry_price": 2.82, "exit_price": 2.82, "pnl_usd": 0.0, "reasoning_ok": true, "note": "|surprise| 4.8 Bcf \u2264 5 deadband; flat, $0", "source": "hindcast"}, {"week_ending": "2026-08-14", "status": "settled", "side": "flat", "n_contracts": 0, "predicted_surprise": 4.310076718710963, "actual_surprise": -3.0, "entry_price": 2.94, "exit_price": 2.94, "pnl_usd": 0.0, "reasoning_ok": false, "note": "|surprise| 4.3 Bcf \u2264 5 deadband; flat, $0", "source": "hindcast"}, {"week_ending": "2026-08-21", "status": "settled", "side": "short", "n_contracts": 1, "predicted_surprise": 14.528021352017376, "actual_surprise": -5.0, "entry_price": 2.8420000076293945, "exit_price": 2.9070000648498535, "pnl_usd": -167.5, "reasoning_ok": false, "note": "standard short 1 QG on +14.5 Bcf predicted surprise; reasoning failed (lucky P&L possible)", "source": "hindcast"}]}};
+    const payload = {"generated_at": "2026-09-03 19:36 UTC", "latest": {"week_ending": "2026-09-04", "predicted": 36.78452140722878, "predicted_wn3": 12.0, "consensus": null, "actual": null, "source": null, "model_version": "baseline-ols-v0.2-calibrated", "nwp_source": "cpc-ndfd", "model_minus_consensus": null}, "next_week": {"week_ending": "2026-09-11", "predicted": 41.66849089404771, "predicted_wn3": 41.66849089404771, "consensus": null, "actual": null, "source": null, "model_version": "baseline-ols-v0.2-calibrated", "nwp_source": "weathernext3", "model_minus_consensus": null}, "gate": {"n_weeks": 0, "model_mae": null, "consensus_mae": null, "rolling_26_model_mae": null, "rolling_26_consensus_mae": null, "surprise_hit_rate": null, "gate_pass": null, "gate_reason": "Waiting for overlapping model predictions, consensus, and EIA actuals."}, "series": [{"week_ending": "2026-08-07", "predicted": null, "predicted_wn3": null, "consensus": 31.0, "actual": 36.0, "source": "tradingeconomics", "model_version": null, "nwp_source": null}, {"week_ending": "2026-08-14", "predicted": null, "predicted_wn3": null, "consensus": 19.0, "actual": 16.0, "source": "tradingeconomics", "model_version": null, "nwp_source": null}, {"week_ending": "2026-08-21", "predicted": null, "predicted_wn3": null, "consensus": 20.0, "actual": 15.0, "source": "tradingeconomics", "model_version": null, "nwp_source": null}, {"week_ending": "2026-08-28", "predicted": 43.049351539007255, "predicted_wn3": null, "consensus": 31.0, "actual": null, "source": "tradingeconomics", "model_version": "baseline-ols-v0.2-calibrated", "nwp_source": "cpc-ndfd"}, {"week_ending": "2026-09-04", "predicted": 36.78452140722878, "predicted_wn3": 12.0, "consensus": null, "actual": null, "source": null, "model_version": "baseline-ols-v0.2-calibrated", "nwp_source": "cpc-ndfd"}, {"week_ending": "2026-09-11", "predicted": 41.66849089404771, "predicted_wn3": 41.66849089404771, "consensus": null, "actual": null, "source": null, "model_version": "baseline-ols-v0.2-calibrated", "nwp_source": "weathernext3"}], "n_consensus_weeks": 4, "n_predictions": 3, "paper": {"strategy": "surprise-qg-v0.1", "n_settled": 4, "n_open": 0, "n_skipped": 0, "cumulative_pnl_usd": -45.0, "win_rate": 0.25, "reasoning_hit_rate": 0.25, "consecutive_losses": 0, "latest_open": null, "trades": [{"week_ending": "2026-08-07", "status": "settled", "side": "flat", "n_contracts": 0, "predicted_surprise": 4.788108872639995, "actual_surprise": 5.0, "entry_price": 2.82, "exit_price": 2.82, "pnl_usd": 0.0, "reasoning_ok": true, "note": "|surprise| 4.8 Bcf \u2264 5 deadband; flat, $0", "source": "hindcast"}, {"week_ending": "2026-08-14", "status": "settled", "side": "flat", "n_contracts": 0, "predicted_surprise": 4.310076718710963, "actual_surprise": -3.0, "entry_price": 2.94, "exit_price": 2.94, "pnl_usd": 0.0, "reasoning_ok": false, "note": "|surprise| 4.3 Bcf \u2264 5 deadband; flat, $0", "source": "hindcast"}, {"week_ending": "2026-08-21", "status": "settled", "side": "short", "n_contracts": 1, "predicted_surprise": 14.528021352017376, "actual_surprise": -5.0, "entry_price": 2.8420000076293945, "exit_price": 2.907000064849853, "pnl_usd": -167.5, "reasoning_ok": false, "note": "standard short 1 QG on +14.5 Bcf predicted surprise; reasoning failed (lucky P&L possible)", "source": "hindcast"}, {"week_ending": "2026-08-28", "status": "settled", "side": "short", "n_contracts": 1, "predicted_surprise": 12.049351539007256, "actual_surprise": -1.0, "entry_price": 2.9560000896453857, "exit_price": 2.9049999713897705, "pnl_usd": 122.5, "reasoning_ok": false, "note": "standard short 1 QG on +12.0 Bcf predicted surprise; reasoning failed (lucky P&L possible)", "source": "live"}]}};
     const fmt = (v, d=1) => v == null || Number.isNaN(v) ? "—" : Number(v).toFixed(d);
     const sign = (v) => v == null ? "—" : (v > 0 ? "+" : "") + Number(v).toFixed(1);
     const money = (v) => v == null || Number.isNaN(v) ? "—" : (v < 0 ? "-$" : "$") + Math.abs(Number(v)).toFixed(0);
@@ -117,9 +121,11 @@
     document.getElementById("updated").textContent = payload.generated_at || "n/a";
 
     const latest = payload.latest || {};
+    const nextWeek = payload.next_week || {};
     const gate = payload.gate || {};
     const kpis = [
       ["This week (model)", sign(latest.predicted), latest.week_ending || ""],
+      ["Next week", sign(nextWeek.predicted), nextWeek.week_ending ? ((nextWeek.nwp_source || "WN3") + " · " + nextWeek.week_ending) : "need 7 forecast days"],
       ["Consensus", sign(latest.consensus), latest.source || ""],
       ["EIA actual", sign(latest.actual), latest.actual == null ? "awaiting Thursday print" : "Bcf change"],
       ["Model − cons", sign(latest.model_minus_consensus), "Bcf"],
@@ -148,7 +154,8 @@
         labels,
         datasets: [
           { label: "EIA actual", data: series.map(r => r.actual), borderColor: "#e8eef6", tension: 0.15, spanGaps: true },
-          { label: "Model", data: series.map(r => r.predicted), borderColor: "#7dd3fc", tension: 0.15, spanGaps: true },
+          { label: "Model (CPC)", data: series.map(r => r.predicted), borderColor: "#7dd3fc", tension: 0.15, spanGaps: true },
+          { label: "WeatherNext 3", data: series.map(r => r.predicted_wn3), borderColor: "#c4b5fd", tension: 0.15, spanGaps: true },
           { label: "Consensus", data: series.map(r => r.consensus), borderColor: "#fbbf24", borderDash: [5,4], tension: 0.15, spanGaps: true },
         ]
       },
@@ -168,7 +175,8 @@
       const cErr = (r.consensus != null && r.actual != null) ? Math.abs(r.consensus - r.actual) : null;
       const surprise = (r.actual != null && r.consensus != null) ? r.actual - r.consensus : null;
       return `<tr>
-        <td>${r.week_ending}</td><td>${sign(r.predicted)}</td><td>${sign(r.consensus)}</td>
+        <td>${r.week_ending}</td><td>${sign(r.predicted)}</td><td>${sign(r.predicted_wn3)}</td>
+        <td>${sign(r.consensus)}</td>
         <td>${sign(r.actual)}</td><td>${fmt(mErr)}</td><td>${fmt(cErr)}</td>
         <td>${sign(surprise)}</td><td>${r.source || ""}</td>
       </tr>`;
