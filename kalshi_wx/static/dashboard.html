@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kalshi weather · WeatherNext 3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b1018;
+      --panel: #131a24;
+      --line: #243044;
+      --text: #e8eef6;
+      --muted: #8b9bb0;
+      --accent: #7dd3fc;
+      --good: #6ee7b7;
+      --warn: #fbbf24;
+      --bad: #f87171;
+      --rain: #a5b4fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+    }
+    .site-nav {
+      display: flex; gap: 4px; padding: 10px 32px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .site-nav a {
+      color: var(--muted); text-decoration: none; font-size: 12px;
+      letter-spacing: 0.06em; text-transform: uppercase; padding: 8px 10px 10px;
+    }
+    .site-nav a.active { color: var(--text); border-bottom: 2px solid var(--accent); }
+    .site-nav a:hover { color: var(--text); }
+    header { padding: 22px 32px 8px; }
+    header h1 { margin: 0 0 6px; font-size: 22px; letter-spacing: -0.02em; }
+    header p { margin: 0; color: var(--muted); font-size: 13px; }
+    main { padding: 16px 32px 48px; max-width: 1280px; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .card {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px;
+    }
+    .card .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .card .value { font-family: "IBM Plex Mono", monospace; font-size: 26px; margin-top: 6px; }
+    .card .sub { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+    .chip {
+      background: transparent; border: 1px solid var(--line); color: var(--muted);
+      border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 12px; cursor: pointer;
+    }
+    .chip.on { border-color: var(--accent); color: var(--text); }
+    .grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; }
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: 1fr; }
+      main, header, .site-nav { padding-left: 16px; padding-right: 16px; }
+    }
+    canvas { width: 100%; height: 300px !important; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th { text-align: left; color: var(--muted); font-weight: 500; padding: 8px 6px; border-bottom: 1px solid var(--line); cursor: pointer; }
+    td { padding: 8px 6px; border-bottom: 1px solid var(--line); font-family: "IBM Plex Mono", monospace; }
+    tr.trade td { background: rgba(110, 231, 183, 0.05); }
+    .good { color: var(--good); }
+    .bad { color: var(--bad); }
+    .muted { color: var(--muted); }
+    .note { color: var(--muted); font-size: 12px; margin-top: 18px; line-height: 1.55; }
+    .kind { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+    .kind.rain { color: var(--rain); }
+  </style>
+</head>
+<body>
+  <nav class="site-nav">
+    <a href="../">Storage</a>
+    <a class="active" href="./">Weather markets</a>
+  </nav>
+  <header>
+    <h1>Kalshi weather vs WeatherNext 3</h1>
+    <p>Two paper books — D+1 vs D+2–10 · Maps hourly path · paper only · updated <span id="updated"></span></p>
+  </header>
+  <main>
+    <section class="kpis" id="kpis"></section>
+    <div class="filters" id="filters"></div>
+    <section class="grid">
+      <div class="card"><canvas id="scatter"></canvas></div>
+      <div class="card"><canvas id="tmax"></canvas></div>
+    </section>
+    <div class="card" style="margin-top:16px; overflow-x:auto">
+      <div class="label" style="margin-bottom:8px">Contracts <span class="muted" id="table-count"></span></div>
+      <table>
+        <thead>
+          <tr>
+            <th data-k="city">City</th>
+            <th data-k="kind">Kind</th>
+            <th data-k="calendar_lead">Lead</th>
+            <th data-k="target_date">Date</th>
+            <th data-k="title">Contract</th>
+            <th data-k="model_p">Model</th>
+            <th data-k="mid">Kalshi</th>
+            <th data-k="ev">EV</th>
+            <th data-k="side">Side</th>
+            <th data-k="tmax_f">Tmax</th>
+            <th data-k="volume">Vol</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="card" style="margin-top:16px; overflow-x:auto">
+      <div class="label" style="margin-bottom:8px">Paper ledger (Kalshi weather, not QG)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Opened</th><th>Book</th><th>Status</th><th>City</th><th>Ticker</th>
+            <th>Side</th><th>Model</th><th>Entry</th><th>EV</th>
+            <th>Result</th><th>P&amp;L</th><th>Reasoning</th>
+          </tr>
+        </thead>
+        <tbody id="paper-rows"></tbody>
+      </table>
+    </div>
+    <p class="note">
+      This page is not the nat-gas storage forecast. Two independent paper books
+      share the same converter and fee gate but do not overlap: <strong>near</strong>
+      is calendar D+1 HIGH/RAIN (volume ≥ 50); <strong>far</strong> is D+2–10
+      plus weekend rain and weekly heat (volume ≥ 10). Maps Weather API tops out
+      at 240 hours, so the far book cannot see the full 15-day WeatherNext
+      synoptic. Same-day highs are monitoring only. Daily highs settle on the
+      source in each market’s rules (currently The Weather Company at the named
+      CLI station, LST day). Trace rain counts as 0. Paper fills are hypothetical
+      — no live Kalshi orders.
+    </p>
+  </main>
+  <script>
+    const payload = __PAYLOAD__;
+    const pct = (v) => v == null || Number.isNaN(v) ? "—" : (100 * Number(v)).toFixed(0) + "¢";
+    const n1 = (v, d=1) => v == null || Number.isNaN(v) ? "—" : Number(v).toFixed(d);
+    const money = (v) => v == null || v === "" || Number.isNaN(Number(v)) ? "—" : (Number(v) < 0 ? "-$" : "$") + Math.abs(Number(v)).toFixed(2);
+    const paper = payload.paper || {};
+    const nearBook = (paper.by_strategy || {}).near || {};
+    const farBook = (paper.by_strategy || {}).far || {};
+    document.getElementById("updated").textContent = payload.generated_at || "n/a";
+
+    const kpis = [
+      ["Markets scanned", payload.n_markets ?? 0, (payload.n_high || 0) + " high · " + (payload.n_rain || 0) + " rain · " + (payload.n_weekend || 0) + " weekend · " + (payload.n_weekly || 0) + " weekly"],
+      ["Near tickets", payload.n_tradeable_near ?? payload.n_tradeable ?? 0, "D+1 · vol ≥ 50"],
+      ["Far tickets", payload.n_tradeable_far ?? 0, "D+2–10 · vol ≥ 10"],
+      ["Near P&L", money(nearBook.cumulative_pnl ?? paper.cumulative_pnl), (nearBook.n_settled || 0) + " settled · " + (nearBook.n_open || 0) + " open"],
+      ["Far P&L", money(farBook.cumulative_pnl), (farBook.n_settled || 0) + " settled · " + (farBook.n_open || 0) + " open"],
+      ["Near win", nearBook.win_rate == null ? "—" : (100 * nearBook.win_rate).toFixed(0) + "%", "best " + (payload.best_ev_near == null ? "—" : (100 * payload.best_ev_near).toFixed(1) + "¢")],
+      ["Far win", farBook.win_rate == null ? "—" : (100 * farBook.win_rate).toFixed(0) + "%", "best " + (payload.best_ev_far == null ? "—" : (100 * payload.best_ev_far).toFixed(1) + "¢")],
+    ];
+    document.getElementById("kpis").innerHTML = kpis.map(([label, value, sub]) =>
+      `<div class="card"><div class="label">${label}</div><div class="value">${value}</div><div class="sub">${sub}</div></div>`
+    ).join("");
+
+    const all = payload.candidates || [];
+    const today = new Date().toISOString().slice(0, 10);
+    const filters = { kind: "all", when: "all", horizon: "all", onlyEdge: false };
+    let sortKey = "ev";
+    let sortDir = -1;
+    let scatterChart = null;
+    let tmaxChart = null;
+
+    function whenOf(row) {
+      if (row.target_date === today) return "today";
+      return "later";
+    }
+
+    function inBook(row, id) {
+      const el = row.eligible || {};
+      if (id === "near") return !!(el.near || row.paper_eligible);
+      if (id === "far") return !!(el.far || row.paper_eligible_far);
+      return false;
+    }
+
+    function visible() {
+      return all.filter((r) => {
+        if (filters.kind !== "all" && r.kind !== filters.kind) return false;
+        if (filters.when === "today" && whenOf(r) !== "today") return false;
+        if (filters.when === "later" && whenOf(r) === "today") return false;
+        if (filters.horizon !== "all" && !inBook(r, filters.horizon)) return false;
+        if (filters.onlyEdge && !inBook(r, "near") && !inBook(r, "far")) return false;
+        return true;
+      }).slice().sort((a, b) => {
+        const av = a[sortKey], bv = b[sortKey];
+        if (av == null && bv == null) return 0;
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        if (av < bv) return -1 * sortDir;
+        if (av > bv) return 1 * sortDir;
+        return 0;
+      });
+    }
+
+    function renderFilters() {
+      const chips = [
+        ["kind", "all", "All"],
+        ["kind", "high", "Highs"],
+        ["kind", "rain", "Rain"],
+        ["kind", "rain_weekend", "Weekend"],
+        ["kind", "weekly_hot", "Weekly heat"],
+        ["horizon", "all", "Both books"],
+        ["horizon", "near", "Near"],
+        ["horizon", "far", "Far"],
+        ["when", "all", "Any day"],
+        ["when", "today", "Today"],
+        ["when", "later", "Tomorrow+"],
+        ["onlyEdge", true, "Paper-eligible"],
+      ];
+      document.getElementById("filters").innerHTML = chips.map(([k, v, label]) => {
+        const on = k === "onlyEdge" ? filters.onlyEdge === v : filters[k] === v;
+        return `<button class="chip ${on ? "on" : ""}" data-k="${k}" data-v="${v}">${label}</button>`;
+      }).join("");
+      document.querySelectorAll("#filters .chip").forEach((btn) => {
+        btn.onclick = () => {
+          const k = btn.dataset.k;
+          const v = btn.dataset.v;
+          if (k === "onlyEdge") filters.onlyEdge = !filters.onlyEdge;
+          else filters[k] = v;
+          redraw();
+        };
+      });
+    }
+
+    function renderTable(rows) {
+      document.getElementById("table-count").textContent = "(" + rows.length + ")";
+      document.getElementById("rows").innerHTML = rows.map((r) => {
+        const ev = r.ev ? (r.ev > 0 ? "+" : "") + (100 * r.ev).toFixed(1) + "¢" : "—";
+        const title = (r.title || r.ticker || "").replace(/Will the /i, "");
+        const lead = r.calendar_lead == null ? "—" : ("D+" + r.calendar_lead);
+        return `<tr class="${inBook(r, "near") || inBook(r, "far") ? "trade" : ""}">
+          <td>${r.city || ""}</td>
+          <td><span class="kind ${r.kind}">${r.kind}</span></td>
+          <td>${lead}</td>
+          <td>${r.target_date || ""}</td>
+          <td title="${r.ticker}">${title.slice(0, 72)}</td>
+          <td>${pct(r.model_p)}</td>
+          <td>${pct(r.mid)}</td>
+          <td class="${r.ev > 0 ? "good" : "muted"}">${ev}</td>
+          <td>${r.side === "skip" ? "—" : r.side.toUpperCase()}</td>
+          <td>${r.kind === "high" ? n1(r.tmax_f, 1) : n1(r.qpf_in, 2) + '"'}</td>
+          <td>${r.volume ? Math.round(r.volume).toLocaleString() : "—"}</td>
+        </tr>`;
+      }).join("") || `<tr><td colspan="11">No scan yet. Run <code>uv run kalshi-wx scan</code>.</td></tr>`;
+    }
+
+    function renderScatter(rows) {
+      const near = rows.filter((r) => inBook(r, "near") && r.mid != null);
+      const far = rows.filter((r) => inBook(r, "far") && r.mid != null);
+      const other = rows.filter((r) => !inBook(r, "near") && !inBook(r, "far") && r.mid != null);
+      const ctx = document.getElementById("scatter");
+      if (scatterChart) scatterChart.destroy();
+      scatterChart = new Chart(ctx, {
+        type: "scatter",
+        data: {
+          datasets: [
+            { label: "Near D+1", data: near.map((r) => ({ x: 100 * r.mid, y: 100 * r.model_p, ticker: r.ticker })), backgroundColor: "#7dd3fc" },
+            { label: "Far D+2–10", data: far.map((r) => ({ x: 100 * r.mid, y: 100 * r.model_p, ticker: r.ticker })), backgroundColor: "#fbbf24" },
+            { label: "Watch only", data: other.map((r) => ({ x: 100 * r.mid, y: 100 * r.model_p, ticker: r.ticker })), backgroundColor: "#8b9bb0" },
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: "#8b9bb0" } },
+            title: { display: true, text: "Model ¢ vs Kalshi mid ¢", color: "#8b9bb0", font: { size: 12 } }
+          },
+          scales: {
+            x: { title: { display: true, text: "Kalshi mid (¢)", color: "#8b9bb0" }, ticks: { color: "#8b9bb0" }, grid: { color: "#243044" }, min: 0, max: 100 },
+            y: { title: { display: true, text: "WeatherNext 3 P (¢)", color: "#8b9bb0" }, ticks: { color: "#8b9bb0" }, grid: { color: "#243044" }, min: 0, max: 100 }
+          }
+        }
+      });
+    }
+
+    function renderTmax() {
+      const fcst = payload.forecasts || [];
+      const byCity = {};
+      fcst.filter((f) => f.target_date === today || !byCity[f.city]).forEach((f) => {
+        if (!byCity[f.city] || f.target_date === today) byCity[f.city] = f;
+      });
+      const implied = {};
+      all.filter((r) => r.kind === "high" && r.implied_tmax != null).forEach((r) => {
+        if (r.target_date === today) implied[r.city] = r.implied_tmax;
+      });
+      const cities = Object.keys(byCity).sort();
+      const ctx = document.getElementById("tmax");
+      if (tmaxChart) tmaxChart.destroy();
+      tmaxChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: cities,
+          datasets: [
+            { label: "WN3 Tmax (°F)", data: cities.map((c) => byCity[c].tmax_f), backgroundColor: "#7dd3fc" },
+            { label: "Kalshi implied Tmax (°F)", data: cities.map((c) => implied[c] ?? null), backgroundColor: "#fbbf24" },
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: "#8b9bb0" } },
+            title: { display: true, text: "Today station Tmax vs market-implied Tmax", color: "#8b9bb0", font: { size: 12 } }
+          },
+          scales: {
+            x: { ticks: { color: "#8b9bb0", maxRotation: 60 }, grid: { color: "#243044" } },
+            y: { ticks: { color: "#8b9bb0" }, grid: { color: "#243044" }, title: { display: true, text: "°F", color: "#8b9bb0" } }
+          }
+        }
+      });
+    }
+
+    function renderPaper() {
+      const rows = (paper.trades || []).slice().reverse();
+      document.getElementById("paper-rows").innerHTML = rows.map((r) => {
+        const reason = r.reasoning_ok === "" || r.reasoning_ok == null ? "—" : (String(r.reasoning_ok) === "true" ? "held" : "failed");
+        const book = r.strategy === "far" ? "far" : (r.strategy === "near" || r.strategy === "wx-kalshi-v0.1" ? "near" : (r.strategy || "—"));
+        return `<tr>
+          <td>${(r.opened_ts || "").slice(0, 16)}</td>
+          <td>${book}</td>
+          <td>${r.status}</td>
+          <td>${r.city}</td>
+          <td>${r.ticker}</td>
+          <td>${r.side}</td>
+          <td>${pct(r.model_p)}</td>
+          <td>${pct(r.entry)}</td>
+          <td>${r.ev ? (100 * Number(r.ev)).toFixed(1) + "¢" : "—"}</td>
+          <td>${r.result || "—"}</td>
+          <td>${money(r.pnl)}</td>
+          <td>${reason}</td>
+        </tr>`;
+      }).join("") || `<tr><td colspan="12">No paper rows yet — run <code>kalshi-wx scan && kalshi-wx paper</code>.</td></tr>`;
+    }
+
+    function redraw() {
+      const rows = visible();
+      renderFilters();
+      renderTable(rows);
+      renderScatter(rows);
+    }
+
+    document.querySelectorAll("th[data-k]").forEach((th) => {
+      th.onclick = () => {
+        const k = th.dataset.k;
+        if (sortKey === k) sortDir *= -1;
+        else { sortKey = k; sortDir = k === "ev" ? -1 : 1; }
+        redraw();
+      };
+    });
+
+    renderFilters();
+    redraw();
+    renderTmax();
+    renderPaper();
+  </script>
+</body>
+</html>

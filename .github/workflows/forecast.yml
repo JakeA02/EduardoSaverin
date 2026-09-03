@@ -49,11 +49,22 @@ jobs:
           EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
         run: uv run natgas dashboard
 
+      - name: Kalshi weather scan and dashboard
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+        run: |
+          if uv run kalshi-wx scan; then
+            echo "Kalshi weather scan ok"
+          else
+            echo "::warning::Kalshi weather scan failed or skipped; writing dashboard from last log."
+          fi
+          uv run kalshi-wx dashboard
+
       - name: Commit logs, consensus, and dashboard
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add logs/predictions/ data/consensus/ data/paper/ dashboard/
+          git add logs/predictions/ logs/kalshi/ data/consensus/ data/paper/ dashboard/
           git diff --staged --quiet || git commit -m "ops: $(date -u +%Y-%m-%dT%H:%MZ)"
           git push
 

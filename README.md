@@ -36,19 +36,25 @@ uv run natgas backtest --model lgbm
 
 CPC degree days and NOAA GFS/GEFS (via Herbie) require no API keys.
 
-The pipeline runs unattended on **GitHub Actions** ([Forecast Pipeline](https://github.com/JakeA02/EduardoSaverin/actions)). Each run ingests EIA + weather + consensus, writes a prediction, refreshes `dashboard/`, and deploys it.
+The pipeline runs unattended on **GitHub Actions** ([Forecast Pipeline](https://github.com/JakeA02/EduardoSaverin/actions)). Each run ingests EIA + weather + consensus, writes a prediction, refreshes `dashboard/` (storage at `/` and Kalshi weather at `/kalshi/`), and deploys it.
 
 Add `GOOGLE_MAPS_API_KEY` as a repo secret to enable the WeatherNext 3 A/B (and next-week attempt). Without it, CPC-NDFD still runs.
 
-**Live dashboard:** https://eduardo-saverin-rouge.vercel.app
+**Live dashboard:** https://eduardo-saverin-rouge.vercel.app  
+**Kalshi weather:** https://eduardo-saverin-rouge.vercel.app/kalshi/
 
 ## Project layout
 
 ```
-natgas/           Python package
+natgas/           Python package (EIA storage)
+kalshi_wx/        Python package (Kalshi weather vs WeatherNext 3)
+kalshi/           TypeScript Kalshi client (demo orders; not on the live path yet)
+dashboard/        Nat-gas Vercel root
+dashboard/kalshi/ Kalshi weather dashboard (served at /kalshi/)
 data/raw/         Versioned Parquet snapshots (gitignored)
 data/interim/     Models, backtest outputs
-logs/predictions/ Append-only JSON prediction log
+logs/predictions/ Nat-gas JSON prediction log
+logs/kalshi/      Kalshi weather scan log
 tests/            Unit tests
 ```
 
@@ -69,6 +75,8 @@ tests/            Unit tests
 | `natgas ingest weathernext` | Maps Weather API → division HDD/CDD (WeatherNext 3) |
 | `natgas predict` | Log a prediction for the current EIA week (CPC NDFD) |
 | `natgas predict --source all` | CPC production + WeatherNext 3 A/B; WN3 also tries next week |
+| `kalshi-wx scan` | WeatherNext 3 at Kalshi stations vs open HIGH/RAIN books; paper ledger |
+| `kalshi-wx dashboard` | Write `dashboard/kalshi/` (Vercel `/kalshi/`) |
 
 ## Phase 4 gate
 
@@ -112,6 +120,24 @@ Fills use EIA Henry Hub spot (RNGWHHD) as a proxy for NG settlement; the officia
 uv run natgas paper --hindcast
 uv run natgas dashboard
 ```
+
+## Kalshi weather (daily / weekly)
+
+Separate from storage. Maps WeatherNext 3 hourly Tmax / QPF at named CLI stations is scored against open Kalshi weather contracts. The Kalshi mid is the consensus. Two independent paper books share the converter and do not overlap — compare them after ~14 days:
+
+| Book | Horizon | Markets | Volume floor |
+| --- | --- | --- | --- |
+| `near` | calendar D+1 | daily HIGH / RAIN | 50 |
+| `far` | D+2–10 | HIGH / RAIN plus weekend rain and weekly heat | 10 |
+
+Both still require a two-sided book between 5¢ and 95¢ and EV ≥ 5¢ after the quadratic taker fee. Maps Weather API tops out at 240 hours, so the far book cannot see the full 15-day WeatherNext synoptic. Existing `wx-kalshi-v0.1` ledger rows count as `near`. Nothing here writes a live Kalshi order.
+
+```bash
+uv run kalshi-wx scan
+uv run kalshi-wx dashboard
+```
+
+The static app is `dashboard/kalshi/` so Vercel keeps storage at `/` and weather at `/kalshi/`. GitHub Actions runs the scan on the same forecast cron.
 
 ## Tests
 

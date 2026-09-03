@@ -43,9 +43,17 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
       margin: 0; background: var(--bg); color: var(--text);
       font-family: "IBM Plex Sans", system-ui, sans-serif;
     }
-    header {
-      padding: 28px 32px 8px; border-bottom: 1px solid var(--line);
+    .site-nav {
+      display: flex; gap: 4px; padding: 10px 32px 0;
+      border-bottom: 1px solid var(--line);
     }
+    .site-nav a {
+      color: var(--muted); text-decoration: none; font-size: 12px;
+      letter-spacing: 0.06em; text-transform: uppercase; padding: 8px 10px 10px;
+    }
+    .site-nav a.active { color: var(--text); border-bottom: 2px solid var(--accent); }
+    .site-nav a:hover { color: var(--text); }
+    header { padding: 22px 32px 8px; }
     header h1 { margin: 0 0 6px; font-size: 22px; letter-spacing: -0.02em; }
     header p { margin: 0; color: var(--muted); font-size: 13px; }
     main { padding: 24px 32px 48px; max-width: 1200px; }
@@ -60,7 +68,7 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
     .fail { color: var(--bad); }
     .wait { color: var(--warn); }
     .grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; }
-    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } main, header { padding-left: 16px; padding-right: 16px; } }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } main, header, .site-nav { padding-left: 16px; padding-right: 16px; } }
     canvas { width: 100%; height: 340px !important; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     th { text-align: left; color: var(--muted); font-weight: 500; padding: 8px 6px; border-bottom: 1px solid var(--line); }
@@ -69,6 +77,10 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
   </style>
 </head>
 <body>
+  <nav class="site-nav">
+    <a class="active" href="./">Storage</a>
+    <a href="./kalshi/">Weather markets</a>
+  </nav>
   <header>
     <h1>US natural gas storage forecast</h1>
     <p>Model vs Trading Economics survey consensus vs EIA actual · updated <span id="updated"></span></p>
