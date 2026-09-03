@@ -3,15 +3,16 @@
 from __future__ import annotations
 
 import json
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import pandas as pd
 
+from natgas.calendar import current_target_week, next_target_week
 from natgas.config import DASHBOARD_DIR, ensure_dirs
 from natgas.ingest.consensus import load_consensus
 from natgas.models.consensus_eval import ConsensusReport, evaluate_vs_consensus
-from natgas.predictions import load_json_log
+from natgas.predictions import load_json_log, load_json_log_by_source
 
 _DASHBOARD_HTML = """<!DOCTYPE html>
 <html lang="en">
@@ -86,7 +87,7 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
       <table>
         <thead>
           <tr>
-            <th>Week ending</th><th>Model</th><th>Consensus</th><th>Actual</th>
+            <th>Week ending</th><th>Model</th><th>WN3</th><th>Consensus</th><th>Actual</th>
             <th>Model err</th><th>Cons err</th><th>Surprise</th><th>Source</th>
           </tr>
         </thead>
@@ -113,6 +114,10 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
       The gate requires 26 overlapping weeks with rolling MAE below consensus
       and surprise-direction hit rate above 50%. Paper trading is a QG overlay
       on predicted surprise versus consensus; it does not wait for the gate.
+      WeatherNext 3 is an A/B forecast source (purple) and does not drive paper
+      trades. Next-week predictions require 7 complete forecast days — Maps
+      Weather API is 10 days, so week+1 is usually available from Wednesday;
+      full WeatherNext 3 (15 days) covers it from Saturday.
       Rules are in <code>natgas/signal/translate.py</code>. Ledger:
       <code>data/paper/trades.csv</code>.
     </p>
@@ -132,9 +137,11 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
     document.getElementById("updated").textContent = payload.generated_at || "n/a";
 
     const latest = payload.latest || {};
+    const nextWeek = payload.next_week || {};
     const gate = payload.gate || {};
     const kpis = [
       ["This week (model)", sign(latest.predicted), latest.week_ending || ""],
+      ["Next week", sign(nextWeek.predicted), nextWeek.week_ending ? ((nextWeek.nwp_source || "WN3") + " · " + nextWeek.week_ending) : "need 7 forecast days"],
       ["Consensus", sign(latest.consensus), latest.source || ""],
       ["EIA actual", sign(latest.actual), latest.actual == null ? "awaiting Thursday print" : "Bcf change"],
       ["Model − cons", sign(latest.model_minus_consensus), "Bcf"],
@@ -163,7 +170,8 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
         labels,
         datasets: [
           { label: "EIA actual", data: series.map(r => r.actual), borderColor: "#e8eef6", tension: 0.15, spanGaps: true },
-          { label: "Model", data: series.map(r => r.predicted), borderColor: "#7dd3fc", tension: 0.15, spanGaps: true },
+          { label: "Model (CPC)", data: series.map(r => r.predicted), borderColor: "#7dd3fc", tension: 0.15, spanGaps: true },
+          { label: "WeatherNext 3", data: series.map(r => r.predicted_wn3), borderColor: "#c4b5fd", tension: 0.15, spanGaps: true },
           { label: "Consensus", data: series.map(r => r.consensus), borderColor: "#fbbf24", borderDash: [5,4], tension: 0.15, spanGaps: true },
         ]
       },
@@ -183,7 +191,8 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
       const cErr = (r.consensus != null && r.actual != null) ? Math.abs(r.consensus - r.actual) : null;
       const surprise = (r.actual != null && r.consensus != null) ? r.actual - r.consensus : null;
       return `<tr>
-        <td>${r.week_ending}</td><td>${sign(r.predicted)}</td><td>${sign(r.consensus)}</td>
+        <td>${r.week_ending}</td><td>${sign(r.predicted)}</td><td>${sign(r.predicted_wn3)}</td>
+        <td>${sign(r.consensus)}</td>
         <td>${sign(r.actual)}</td><td>${fmt(mErr)}</td><td>${fmt(cErr)}</td>
         <td>${sign(surprise)}</td><td>${r.source || ""}</td>
       </tr>`;
@@ -228,14 +237,28 @@ def load_actuals() -> pd.DataFrame:
 
 def build_payload() -> dict:
     preds = load_json_log()
+    by_source = load_json_log_by_source()
     consensus = load_consensus()
     actuals = load_actuals()
+
+    wn3_map = {}
+    if not by_source.empty:
+        wn3 = by_source[by_source["nwp_source"] == "weathernext3"]
+        if not wn3.empty:
+            wn3_map = (
+                wn3.sort_values("ts_utc")
+                .groupby("target_week_ending", as_index=False)
+                .tail(1)
+                .set_index("target_week_ending")["predicted_change_bcf"]
+                .to_dict()
+            )
 
     weeks = set()
     if not preds.empty:
         weeks.update(preds["target_week_ending"])
     if not consensus.empty:
         weeks.update(consensus["week_ending"])
+    weeks.update(wn3_map.keys())
 
     cons_map = (
         consensus.set_index("week_ending")[["consensus_median", "source"]]
@@ -257,14 +280,17 @@ def build_payload() -> dict:
         consensus_v = None if cons_row is None else float(cons_row["consensus_median"])
         actual = None if act_map is None or week not in act_map.index else float(act_map.loc[week])
         source = None if cons_row is None else str(cons_row["source"])
+        wn3 = None if week not in wn3_map else float(wn3_map[week])
         series.append(
             {
                 "week_ending": week.isoformat(),
                 "predicted": predicted,
+                "predicted_wn3": wn3,
                 "consensus": consensus_v,
                 "actual": actual,
                 "source": source,
                 "model_version": None if pred_row is None else pred_row.get("model_version"),
+                "nwp_source": None if pred_row is None else pred_row.get("nwp_source"),
             }
         )
 
@@ -277,16 +303,29 @@ def build_payload() -> dict:
         if not pred_df.empty:
             report = evaluate_vs_consensus(pred_df, consensus)
 
-    latest = series[-1] if series else {}
-    if latest:
-        latest = {
-            **latest,
+    this_week = current_target_week()
+    following = next_target_week()
+    by_week = {row["week_ending"]: row for row in series}
+
+    def _week_payload(week: date) -> dict:
+        row = by_week.get(week.isoformat(), {})
+        predicted = row.get("predicted")
+        if predicted is None:
+            predicted = row.get("predicted_wn3")
+        return {
+            **row,
+            "week_ending": week.isoformat(),
+            "predicted": predicted,
+            "nwp_source": row.get("nwp_source"),
             "model_minus_consensus": (
                 None
-                if latest.get("predicted") is None or latest.get("consensus") is None
-                else latest["predicted"] - latest["consensus"]
+                if predicted is None or row.get("consensus") is None
+                else predicted - row["consensus"]
             ),
         }
+
+    latest = _week_payload(this_week)
+    next_week = _week_payload(following)
 
     gate = {
         "n_weeks": 0 if report is None else report.n_weeks,
@@ -306,6 +345,7 @@ def build_payload() -> dict:
     return {
         "generated_at": datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
         "latest": latest,
+        "next_week": next_week,
         "gate": gate,
         "series": series[-52:],
         "n_consensus_weeks": 0 if consensus.empty else len(consensus),

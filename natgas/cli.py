@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -196,73 +196,105 @@ def forecast_backtest_cmd(
     console.print(f"Predictions saved to {output}")
 
 
+@ingest_app.command("weathernext")
+def ingest_weathernext_cmd(
+    hours: int = typer.Option(240, help="Hourly horizon to request (Maps API max 240)"),
+) -> None:
+    """Maps Platform Weather API → division HDD/CDD (WeatherNext 3)."""
+    from natgas.ingest.weathernext import WeatherNextConfigError, ingest
+
+    try:
+        df = ingest(hours=hours)
+    except WeatherNextConfigError as exc:
+        console.print(f"[yellow]WeatherNext skipped:[/yellow] {exc}")
+        raise typer.Exit(1)
+    console.print(
+        f"[green]WeatherNext 3:[/green] {len(df)} rows, "
+        f"{df['date'].nunique()} days, {df['issued'].nunique()} issue date(s)"
+    )
+
+
 @app.command("predict")
 def predict_cmd(
-    week_ending: str = typer.Option(None, help="Target week ending (YYYY-MM-DD); default: current EIA target week"),
+    week_ending: str = typer.Option(
+        None, help="Single target Friday (YYYY-MM-DD); default: current EIA week (and next if --weeks 2)"
+    ),
     model_path: Path = Path("data/interim/model.joblib"),
-    source: str = typer.Option("cpc-forecast", help="observed or cpc-forecast"),
+    source: str = typer.Option(
+        "cpc-forecast",
+        help="observed, cpc-forecast, weathernext, or all (CPC production + WeatherNext A/B)",
+    ),
+    weeks: int | None = typer.Option(
+        None,
+        help="How many storage weeks to score. Default 1 for CPC, 2 for weathernext/all.",
+    ),
 ) -> None:
     import joblib
 
-    from natgas.calendar import current_target_week
     from natgas.features.balance import load_panel
-    from natgas.features.blend import blend_week_daily, week_totals
-    from natgas.models.baseline import predict as predict_ols
-    from natgas.models.ensemble import predict as predict_lgbm
-    from natgas.predictions import log_prediction
+    from natgas.ingest.weathernext import WeatherNextConfigError
+    from natgas.models.live import default_weeks_for_source, run_live
 
-    target = date.fromisoformat(week_ending) if week_ending else current_target_week()
     panel = load_panel()
     panel["week_ending"] = pd.to_datetime(panel["week_ending"]).dt.date
+    if not model_path.exists():
+        console.print(f"[red]No model at {model_path}. Run `natgas train` first.[/red]")
+        raise typer.Exit(1)
     model = joblib.load(model_path)
-    latest = panel[panel["week_ending"] <= target].tail(1).copy()
-    if latest.empty:
-        raise typer.Exit("No panel data for target week.")
+    sources = ["cpc-forecast", "weathernext"] if source == "all" else [source]
+    as_of = datetime.now(UTC).date()
+    targets = None
+    if week_ending:
+        first = date.fromisoformat(week_ending)
+        n = weeks if weeks else 1
+        targets = [first + timedelta(days=7 * i) for i in range(n)]
 
-    nwp_source = "observed_weather"
-    nwp_cycle = None
-    if source == "cpc-forecast":
+    any_ok = False
+    for src in sources:
+        n_weeks = default_weeks_for_source(src, weeks) if targets is None else len(targets)
         try:
-            from natgas.ingest.cpc import load_latest_daily
-            from natgas.ingest.cpc_forecast import fetch_latest, load_latest_vintage
-
-            observed = load_latest_daily()
-            try:
-                forecasts = load_latest_vintage()
-            except FileNotFoundError:
-                forecasts = fetch_latest()
-            latest_issue = pd.to_datetime(forecasts["issued"]).max().date()
-            daily = blend_week_daily(target, date.today(), observed, forecasts)
-            totals = week_totals(daily)
-            if not any(pd.isna(v) for v in totals.values()):
-                for k, v in totals.items():
-                    latest[k] = v
-                nwp_source = "cpc-ndfd"
-                nwp_cycle = latest_issue.isoformat()
+            results = run_live(
+                source=src,
+                weeks=n_weeks,
+                model=model,
+                panel=panel,
+                as_of=as_of,
+                targets=targets,
+            )
+        except WeatherNextConfigError as exc:
+            console.print(f"[yellow]WeatherNext skipped:[/yellow] {exc}")
+            continue
         except Exception as exc:
-            console.print(f"[yellow]Forecast blend failed ({exc}); using observed weather.[/yellow]")
-
-    if hasattr(model, "pipeline"):
-        y_hat = float(predict_ols(model, latest)[0])
-        model_name = model.name
-    else:
-        y_hat = float(predict_lgbm(model, latest)[0])
-        model_name = model.name
-
-    lo = y_hat + float(getattr(model, "residual_q05", -20.0))
-    hi = y_hat + float(getattr(model, "residual_q95", 20.0))
-    path = log_prediction(
-        target_week_ending=target.isoformat(),
-        model_version=model_name,
-        predicted_change_bcf=y_hat,
-        nwp_cycle=nwp_cycle,
-        nwp_source=nwp_source,
-        prediction_interval_90=(lo, hi),
-    )
-    console.print(
-        f"[green]Prediction:[/green] {y_hat:.1f} Bcf "
-        f"(90% [{lo:.1f}, {hi:.1f}]) week ending {target} [{nwp_source}] -> {path}"
-    )
+            if src == "cpc-forecast":
+                console.print(f"[yellow]Forecast blend failed ({exc}); trying observed weather.[/yellow]")
+                results = run_live(
+                    source="observed",
+                    weeks=1,
+                    model=model,
+                    panel=panel,
+                    as_of=as_of,
+                    targets=targets[:1] if targets else None,
+                )
+            else:
+                console.print(f"[yellow]{src} failed:[/yellow] {exc}")
+                continue
+        for item in results:
+            if not item.complete:
+                console.print(
+                    f"[yellow]Skip h{item.horizon_weeks} week ending {item.target_week_ending}:[/yellow] "
+                    f"{item.skipped_reason}"
+                )
+                continue
+            any_ok = True
+            console.print(
+                f"[green]Prediction:[/green] {item.predicted_change_bcf:.1f} Bcf "
+                f"(90% [{item.interval_lower:.1f}, {item.interval_upper:.1f}]) "
+                f"week ending {item.target_week_ending} "
+                f"[h{item.horizon_weeks} {item.nwp_source}] -> {item.path}"
+            )
+    if not any_ok:
+        console.print("[red]No complete-week predictions written.[/red]")
+        raise typer.Exit(1)
 
 
 @app.command("init-db")

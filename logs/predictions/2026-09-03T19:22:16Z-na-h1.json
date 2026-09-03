@@ -1,0 +1,12 @@
+{
+  "ts_utc": "2026-09-03T19:22:16Z",
+  "target_week_ending": "2026-08-21",
+  "model_version": "test",
+  "nwp_cycle": null,
+  "nwp_source": null,
+  "horizon_weeks": 1,
+  "predicted_change_bcf": 30.0,
+  "prediction_interval_90": null,
+  "consensus_median": null,
+  "actual": null
+}

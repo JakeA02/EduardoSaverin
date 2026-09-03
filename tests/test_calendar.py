@@ -7,9 +7,12 @@ import pytest
 from natgas.calendar import (
     current_target_week,
     eia_storage_week_ending,
+    horizon_weeks,
     last_completed_friday,
+    next_target_week,
     report_release_datetime,
     storage_week_start,
+    target_weeks,
     week_ending_friday,
 )
 
@@ -53,3 +56,16 @@ def test_current_target_week_before_and_after_release() -> None:
     assert current_target_week(before) == date(2026, 8, 28)
     assert current_target_week(after) == date(2026, 9, 4)
     assert last_completed_friday(date(2026, 9, 1)) == date(2026, 8, 28)
+
+
+def test_next_week_and_horizon() -> None:
+    from datetime import datetime
+    from natgas.calendar import ET
+
+    sat = datetime(2026, 8, 29, 12, 0, tzinfo=ET)  # after 8/28 report on 9/3? 8/29 is Sat after 8/28 Friday
+    # 8/28 report is Thursday 9/3. On 8/29 current target is still 8/28 (unreported).
+    assert current_target_week(sat) == date(2026, 8, 28)
+    assert next_target_week(sat) == date(2026, 9, 4)
+    assert target_weeks(2, sat) == [date(2026, 8, 28), date(2026, 9, 4)]
+    assert horizon_weeks(date(2026, 8, 28), sat) == 1
+    assert horizon_weeks(date(2026, 9, 4), sat) == 2

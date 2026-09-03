@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import duckdb
 
-from natgas.config import WAREHOUSE_PATH, ensure_dirs
+from natgas import config
+from natgas.config import ensure_dirs
 
 
 def connect() -> duckdb.DuckDBPyConnection:
     ensure_dirs()
-    return duckdb.connect(str(WAREHOUSE_PATH))
+    return duckdb.connect(str(config.WAREHOUSE_PATH))
 
 
 def init_schema(conn: duckdb.DuckDBPyConnection | None = None) -> duckdb.DuckDBPyConnection:
@@ -49,10 +50,14 @@ def init_schema(conn: duckdb.DuckDBPyConnection | None = None) -> duckdb.DuckDBP
             prediction_interval_90_upper DOUBLE,
             consensus_median DOUBLE,
             actual DOUBLE,
+            horizon_weeks INTEGER,
             PRIMARY KEY (ts_utc, target_week_ending, model_version)
         )
         """
     )
+    cols = {row[0] for row in db.execute("DESCRIBE predictions").fetchall()}
+    if "horizon_weeks" not in cols:
+        db.execute("ALTER TABLE predictions ADD COLUMN horizon_weeks INTEGER")
     if own_conn:
         db.close()
     return db

@@ -51,6 +51,25 @@ def current_target_week(now: datetime | None = None) -> date:
     return completed + timedelta(days=7)
 
 
+def next_target_week(now: datetime | None = None) -> date:
+    """Storage week after the current unreported week."""
+    return current_target_week(now) + timedelta(days=7)
+
+
+def target_weeks(n: int = 1, now: datetime | None = None) -> list[date]:
+    """The next `n` unreported Friday week-endings (n=2 is this week and next)."""
+    if n < 1:
+        raise ValueError("n must be >= 1")
+    first = current_target_week(now)
+    return [first + timedelta(days=7 * i) for i in range(n)]
+
+
+def horizon_weeks(target: date, now: datetime | None = None) -> int:
+    """1 = current EIA target week, 2 = the Friday after that, etc."""
+    current = current_target_week(now)
+    return 1 + (target - current).days // 7
+
+
 def storage_week_days(week_ending: date) -> list[date]:
     start = storage_week_start(week_ending)
     return [start + timedelta(days=i) for i in range(7)]

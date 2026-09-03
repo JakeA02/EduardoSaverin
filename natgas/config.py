@@ -22,6 +22,9 @@ WAREHOUSE_PATH = DATA_DIR / "warehouse.duckdb"
 EIA_API_KEY = os.getenv("EIA_API_KEY", "")
 EIA_BASE_URL = "https://api.eia.gov/v2"
 
+# Maps Platform Weather API (WeatherNext 3). 10k calls/month free.
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "") or os.getenv("GOOGLE_WEATHER_API_KEY", "")
+
 # EIA storage week ends Friday; report released following Thursday 10:30 ET.
 STORAGE_BASE_TEMP_F = 65.0
 

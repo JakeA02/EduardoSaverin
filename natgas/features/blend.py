@@ -11,6 +11,8 @@ from natgas.config import CPC_DIVISIONS
 from natgas.features.weights import apply_gwdd, demographic_weights
 from natgas.models.nwp_bias import apply_forecast_bias, fit_forecast_bias
 
+REQUIRED_BLEND_DAYS = 7
+
 
 def _as_date(s: pd.Series) -> pd.Series:
     return pd.to_datetime(s).dt.date
@@ -73,6 +75,24 @@ def blend_week_daily(
                 }
             )
     return pd.DataFrame(rows)
+
+
+def blend_is_complete(daily_blend: pd.DataFrame) -> bool:
+    """True when every census division has all seven storage-week days."""
+    if daily_blend is None or daily_blend.empty:
+        return False
+    div = daily_blend[daily_blend["region"].isin(CPC_DIVISIONS)]
+    if div.empty:
+        return False
+    counts = div.groupby("region")["date"].nunique()
+    missing = set(CPC_DIVISIONS) - set(counts.index)
+    return not missing and bool((counts >= REQUIRED_BLEND_DAYS).all())
+
+
+def blend_coverage_days(daily_blend: pd.DataFrame) -> int:
+    if daily_blend is None or daily_blend.empty:
+        return 0
+    return int(daily_blend["date"].nunique())
 
 
 def week_totals(

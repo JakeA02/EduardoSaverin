@@ -38,9 +38,10 @@ jobs:
       - name: Train, predict, and paper-trade
         env:
           EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
         run: |
           uv run natgas train
-          uv run natgas predict --source cpc-forecast
+          uv run natgas predict --source all
           uv run natgas paper --hindcast
 
       - name: Refresh dashboard

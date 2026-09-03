@@ -179,7 +179,7 @@ def _upsert_open(ledger: pd.DataFrame, row: dict) -> pd.DataFrame:
 
 
 def _predictions_frame(*, hindcast: bool) -> pd.DataFrame:
-    live = load_json_log()
+    live = load_json_log()  # prefers cpc-ndfd so the WeatherNext A/B cannot hijack the book
     if not live.empty:
         live = live.rename(
             columns={"target_week_ending": "week_ending", "predicted_change_bcf": "predicted"}

@@ -2,16 +2,14 @@
 
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 
 from natgas.config import CPC_DIVISIONS, DEFAULT_GAS_HEATING_SHARE
 
 
-def demographic_weights() -> pd.Series:
-    """Population × gas-heating-share weights by census division."""
-    # Approximate 2020 census division populations (millions).
-    population = pd.Series(
+def population_series() -> pd.Series:
+    """Approximate 2020 census division populations (millions)."""
+    return pd.Series(
         {
             "NEW ENGLAND": 15.0,
             "EAST NORTH CENTRAL": 46.7,
@@ -23,6 +21,17 @@ def demographic_weights() -> pd.Series:
             "PACIFIC": 55.0,
         }
     )
+
+
+def population_weights() -> pd.Series:
+    """Population shares by census division (sums to 1)."""
+    pop = population_series()
+    return pop / pop.sum()
+
+
+def demographic_weights() -> pd.Series:
+    """Population × gas-heating-share weights by census division."""
+    population = population_series()
     gas_share = pd.Series(DEFAULT_GAS_HEATING_SHARE)
     raw = population * gas_share.reindex(population.index)
     return raw / raw.sum()

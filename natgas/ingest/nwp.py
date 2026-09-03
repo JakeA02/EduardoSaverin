@@ -28,6 +28,10 @@ def kelvin_to_fahrenheit(arr: np.ndarray) -> np.ndarray:
     return (np.asarray(arr) - 273.15) * 9 / 5 + 32
 
 
+def celsius_to_fahrenheit(arr: np.ndarray) -> np.ndarray:
+    return np.asarray(arr, dtype=float) * 9 / 5 + 32
+
+
 def nearest_index(coord: np.ndarray, value: float) -> int:
     return int(np.abs(coord - value).argmin())
 
@@ -127,3 +131,38 @@ def fetch_gefs_ensemble(cycle: datetime, members: list[str] | None = None, hours
     if not frames:
         return pd.DataFrame()
     return pd.concat(frames, ignore_index=True)
+
+
+def attach_national(daily: pd.DataFrame) -> pd.DataFrame:
+    """Add NATIONAL rows as population-weighted HDD/CDD of the eight divisions."""
+    if daily.empty or (daily["region"] == "NATIONAL").any():
+        return daily
+    from natgas.config import CPC_DIVISIONS
+    from natgas.features.weights import population_weights
+
+    keys = [c for c in ("issued", "nwp_source", "member") if c in daily.columns]
+    div = daily[daily["region"].isin(CPC_DIVISIONS)].copy()
+    if div.empty:
+        return daily
+    weights = population_weights()
+    div["weight"] = div["region"].map(weights)
+    grouped = []
+    for _, grp in div.groupby(["date"] + keys, dropna=False):
+        w = grp["weight"].fillna(0.0)
+        if float(w.sum()) <= 0:
+            continue
+        w = w / w.sum()
+        row: dict = {
+            "date": grp["date"].iloc[0],
+            "region": "NATIONAL",
+            "hdd": float((grp["hdd"] * w).sum()),
+            "cdd": float((grp["cdd"] * w).sum()),
+        }
+        for key in keys:
+            row[key] = grp[key].iloc[0]
+        if "lead_days" in grp.columns:
+            row["lead_days"] = int(grp["lead_days"].iloc[0])
+        grouped.append(row)
+    if not grouped:
+        return daily
+    return pd.concat([daily, pd.DataFrame(grouped)], ignore_index=True)

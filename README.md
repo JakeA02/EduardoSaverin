@@ -31,11 +31,14 @@ uv run natgas backtest --model lgbm
 | Key | Source | Required |
 |-----|--------|----------|
 | `EIA_API_KEY` | [EIA Open Data](https://www.eia.gov/opendata/register.php) | Yes |
+| `GOOGLE_MAPS_API_KEY` | [Maps Platform Weather API](https://developers.google.com/maps/documentation/weather/overview) | For WeatherNext 3 A/B (optional) |
 | Consensus | Automated from [Trading Economics](https://tradingeconomics.com/united-states/natural-gas-stocks-change) via `natgas ingest consensus` | For Phase 4 gate |
 
 CPC degree days and NOAA GFS/GEFS (via Herbie) require no API keys.
 
 The pipeline runs unattended on **GitHub Actions** ([Forecast Pipeline](https://github.com/JakeA02/EduardoSaverin/actions)). Each run ingests EIA + weather + consensus, writes a prediction, refreshes `dashboard/`, and deploys it.
+
+Add `GOOGLE_MAPS_API_KEY` as a repo secret to enable the WeatherNext 3 A/B (and next-week attempt). Without it, CPC-NDFD still runs.
 
 **Live dashboard:** https://eduardo-saverin-rouge.vercel.app
 
@@ -63,7 +66,9 @@ tests/            Unit tests
 | `natgas paper` | Open/settle QG paper trades from prediction vs consensus |
 | `natgas dashboard` | Write static dashboard to `dashboard/` |
 | `natgas benchmark` | Compare backtest vs analyst consensus (Phase 4 gate) |
-| `natgas predict` | Log a prediction for the target week |
+| `natgas ingest weathernext` | Maps Weather API → division HDD/CDD (WeatherNext 3) |
+| `natgas predict` | Log a prediction for the current EIA week (CPC NDFD) |
+| `natgas predict --source all` | CPC production + WeatherNext 3 A/B; WN3 also tries next week |
 
 ## Phase 4 gate
 
@@ -81,6 +86,17 @@ uv run natgas consensus 2026-08-22 -58 --low -65 --high -50 --source manual
 ```
 
 Your model must beat consensus rolling 26-week MAE before **live** capital (Phase 6). Paper trading starts now so the ledger exists before that gate.
+
+## WeatherNext 3 A/B and week+1
+
+`natgas predict --source all` logs the production CPC-NDFD number and a parallel WeatherNext 3 number (`nwp_source: weathernext3`). Paper trades keep using CPC until the A/B wins.
+
+WeatherNext 3 synoptic cycles go 15 days, which is enough for **two** Saturday–Friday storage weeks from Saturday. The Maps Weather API path used here is capped at **10 days (240 hours)**, so next week is a complete 7-day blend only from about Wednesday onward. Incomplete weeks are skipped, not guessed.
+
+```bash
+uv run natgas ingest weathernext
+uv run natgas predict --source weathernext --weeks 2
+```
 
 ## Paper trading
 
