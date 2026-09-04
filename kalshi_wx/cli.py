@@ -85,11 +85,13 @@ def scan_cmd(
         console.print(
             f"[green]Paper near:[/green] {near.get('n_open', 0)} open · "
             f"{near.get('n_settled', 0)} settled · "
+            f"{near.get('n_scored', 0)} scored · "
             f"P&L ${near.get('cumulative_pnl', 0):.2f}"
         )
         console.print(
             f"[green]Paper far:[/green] {far.get('n_open', 0)} open · "
             f"{far.get('n_settled', 0)} settled · "
+            f"{far.get('n_scored', 0)} scored · "
             f"P&L ${far.get('cumulative_pnl', 0):.2f}"
         )
 
@@ -114,9 +116,12 @@ def paper_cmd() -> None:
         book = books.get(sid) or {}
         table.add_row(f"{label} open", str(book.get("n_open", 0)))
         table.add_row(f"{label} settled", str(book.get("n_settled", 0)))
+        table.add_row(f"{label} scored", str(book.get("n_scored", 0)))
         table.add_row(f"{label} P&L", f"${book.get('cumulative_pnl', 0):.2f}")
-        wr = book.get("win_rate")
-        table.add_row(f"{label} win rate", "n/a" if wr is None else f"{wr:.0%}")
+        wr = book.get("scored_win_rate")
+        table.add_row(f"{label} scored win", "n/a" if wr is None else f"{wr:.0%}")
+        hit = book.get("reasoning_hit_rate")
+        table.add_row(f"{label} model hit", "n/a" if hit is None else f"{hit:.0%}")
     console.print(table)
 
 

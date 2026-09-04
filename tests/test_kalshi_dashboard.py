@@ -62,6 +62,7 @@ def test_generate_writes_separate_kalshi_folder(tmp_path: Path) -> None:
     assert "US natural gas storage forecast" not in html
     assert "near" in html and "far" in html
     assert "Two paper books" in html
+    assert "scored when Kalshi settles" in html
     assert (tmp_path / "data.json").exists()
 
 
@@ -175,16 +176,138 @@ def test_paper_summary_groups_legacy_near_rows() -> None:
 
     ledger = pd.DataFrame(
         [
-            {"status": "open", "strategy": "wx-kalshi-v0.1", "pnl": "", "reasoning_ok": ""},
-            {"status": "open", "strategy": "far", "pnl": "", "reasoning_ok": ""},
-            {"status": "settled", "strategy": "near", "pnl": 0.2, "reasoning_ok": "true"},
+            {"status": "open", "strategy": "wx-kalshi-v0.1", "pnl": "", "reasoning_ok": "", "result": ""},
+            {"status": "open", "strategy": "far", "pnl": "", "reasoning_ok": "", "result": ""},
+            {"status": "settled", "strategy": "near", "pnl": 0.2, "reasoning_ok": "true", "result": "yes"},
         ]
     )
     summary = paper_summary(ledger)
     assert summary["by_strategy"]["near"]["n_open"] == 1
     assert summary["by_strategy"]["near"]["n_settled"] == 1
+    assert summary["by_strategy"]["near"]["n_scored"] == 1
     assert summary["by_strategy"]["far"]["n_open"] == 1
     assert summary["by_strategy"]["far"]["n_settled"] == 0
+
+
+def test_paper_summary_scores_voided_tickets() -> None:
+    import pandas as pd
+
+    ledger = pd.DataFrame(
+        [
+            {
+                "status": "void",
+                "strategy": "wx-kalshi-v0.1",
+                "pnl": -0.25,
+                "reasoning_ok": "false",
+                "result": "yes",
+            },
+            {
+                "status": "void",
+                "strategy": "near",
+                "pnl": 0.70,
+                "reasoning_ok": "true",
+                "result": "no",
+            },
+            {
+                "status": "settled",
+                "strategy": "far",
+                "pnl": 0.10,
+                "reasoning_ok": "true",
+                "result": "yes",
+            },
+        ]
+    )
+    summary = paper_summary(ledger)
+    near = summary["by_strategy"]["near"]
+    far = summary["by_strategy"]["far"]
+    assert near["n_settled"] == 0
+    assert near["n_void"] == 2
+    assert near["n_scored"] == 2
+    assert near["cumulative_pnl"] == 0.0
+    assert abs(near["scored_pnl"] - 0.45) < 1e-9
+    assert near["scored_win_rate"] == 0.5
+    assert near["reasoning_hit_rate"] == 0.5
+    assert far["n_settled"] == 1
+    assert far["n_scored"] == 1
+
+
+def test_settle_open_scores_void_without_promoting_to_settled(monkeypatch) -> None:
+    from datetime import UTC, datetime
+
+    import pandas as pd
+
+    from kalshi_wx.paper import settle_open
+
+    ledger = pd.DataFrame(
+        [
+            {
+                "status": "void",
+                "strategy": "near",
+                "ticker": "KXHIGHNY-26SEP03-B83.5",
+                "side": "no",
+                "n_contracts": 1,
+                "model_p": 0.23,
+                "entry": 0.24,
+                "fee": 0.01,
+                "result": "",
+                "pnl": None,
+                "reasoning_ok": "",
+                "close_time": "2026-09-04T05:00:00Z",
+                "settled_ts": "",
+                "note": "void · same-day / realized window excluded",
+            }
+        ]
+    )
+    monkeypatch.setattr("kalshi_wx.paper.load_ledger", lambda: ledger)
+    monkeypatch.setattr("kalshi_wx.paper.save_ledger", lambda df: df)
+    monkeypatch.setattr("kalshi_wx.paper.get_market", lambda ticker: {"result": "no"})
+    out = settle_open(now=datetime(2026, 9, 4, 12, tzinfo=UTC))
+    assert out.loc[0, "status"] == "void"
+    assert out.loc[0, "result"] == "no"
+    assert out.loc[0, "reasoning_ok"] == "true"
+    assert float(out.loc[0, "pnl"]) > 0
+    assert str(out.loc[0, "settled_ts"]).startswith("2026-09-04")
+
+
+def test_settle_open_skips_void_before_close(monkeypatch) -> None:
+    from datetime import UTC, datetime
+
+    import pandas as pd
+
+    from kalshi_wx.paper import settle_open
+
+    ledger = pd.DataFrame(
+        [
+            {
+                "status": "void",
+                "strategy": "near",
+                "ticker": "KXHIGHNY-26SEP04-B86.5",
+                "side": "yes",
+                "n_contracts": 1,
+                "model_p": 0.29,
+                "entry": 0.07,
+                "fee": 0.005,
+                "result": "",
+                "pnl": "",
+                "reasoning_ok": "",
+                "close_time": "2026-09-05T05:00:00Z",
+                "settled_ts": "",
+            }
+        ]
+    )
+    called = {"n": 0}
+
+    def _market(_ticker: str) -> dict:
+        called["n"] += 1
+        return {"result": "yes"}
+
+    monkeypatch.setattr("kalshi_wx.paper.load_ledger", lambda: ledger)
+    monkeypatch.setattr("kalshi_wx.paper.save_ledger", lambda df: df)
+    monkeypatch.setattr("kalshi_wx.paper.get_market", _market)
+    out = settle_open(now=datetime(2026, 9, 4, 12, tzinfo=UTC))
+    assert called["n"] == 0
+    assert out.loc[0, "result"] == ""
+    assert out.loc[0, "status"] == "void"
 
 
 def test_paper_pnl_yes_win_and_no_loss() -> None:

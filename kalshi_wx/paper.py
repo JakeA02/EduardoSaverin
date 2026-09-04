@@ -114,7 +114,12 @@ def _best_per_event(candidates: list[dict], *, strategy: str = NEAR.id) -> list[
 
 
 def void_same_day_opens(ledger: pd.DataFrame, *, today=None) -> pd.DataFrame:
-    """Void same-day near tickets; that window is already in the Kalshi price."""
+    """Pull same-day near tickets out of the live book; still score them later.
+
+    The Kalshi print already includes the realized window, so these are not
+    valid paper fills. They stay on the ledger as `void` and `settle_open`
+    backfills Kalshi `result` / hypothetical P&L / `reasoning_ok`.
+    """
     from datetime import date as date_cls
 
     today = today or datetime.now(UTC).date()
@@ -131,7 +136,6 @@ def void_same_day_opens(ledger: pd.DataFrame, *, today=None) -> pd.DataFrame:
         if target <= today:
             ledger.at[i, "status"] = "void"
             ledger.at[i, "note"] = "void · same-day / realized window excluded"
-            ledger.at[i, "settled_ts"] = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
             changed = True
     if changed:
         save_ledger(ledger)
@@ -207,12 +211,39 @@ def _pnl(side: str, entry: float, fee: float, result: str, n: int) -> float:
     return n * (payout - float(entry) - float(fee or 0))
 
 
+def _reasoning_ok(model_p: float, result: str) -> bool:
+    if result == "yes":
+        return model_p >= 0.5
+    return model_p < 0.5
+
+
+def _row_result(row) -> str:
+    return str(row.get("result") or "").strip().lower()
+
+
+def _apply_result(ledger: pd.DataFrame, i, result: str, now: datetime) -> None:
+    row = ledger.loc[i]
+    side = str(row.get("side") or "")
+    pnl = _pnl(side, float(row.get("entry") or 0), float(row.get("fee") or 0), result, int(row.get("n_contracts") or 1))
+    reasoning = _reasoning_ok(float(row.get("model_p") or 0), result)
+    status = str(row.get("status") or "")
+    ledger.at[i, "status"] = "void" if status == "void" else "settled"
+    ledger.at[i, "result"] = result
+    ledger.at[i, "pnl"] = pnl
+    ledger.at[i, "reasoning_ok"] = "true" if reasoning else "false"
+    ledger.at[i, "settled_ts"] = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def settle_open(*, now: datetime | None = None) -> pd.DataFrame:
+    """Fill Kalshi outcomes on live opens and on voided same-day tickets."""
     ledger = load_ledger()
     now = now or datetime.now(UTC)
     changed = False
     for i, row in ledger.iterrows():
-        if row.get("status") != "open":
+        status = str(row.get("status") or "")
+        if status not in {"open", "void"}:
+            continue
+        if status == "void" and _row_result(row) in {"yes", "no"}:
             continue
         ticker = str(row.get("ticker") or "")
         if not ticker:
@@ -232,18 +263,7 @@ def settle_open(*, now: datetime | None = None) -> pd.DataFrame:
         result = (market.get("result") or "").lower()
         if result not in {"yes", "no"}:
             continue
-        side = str(row.get("side") or "")
-        pnl = _pnl(side, float(row.get("entry") or 0), float(row.get("fee") or 0), result, int(row.get("n_contracts") or 1))
-        model_p = float(row.get("model_p") or 0)
-        if result == "yes":
-            reasoning = model_p >= 0.5
-        else:
-            reasoning = model_p < 0.5
-        ledger.at[i, "status"] = "settled"
-        ledger.at[i, "result"] = result
-        ledger.at[i, "pnl"] = pnl
-        ledger.at[i, "reasoning_ok"] = "true" if reasoning else "false"
-        ledger.at[i, "settled_ts"] = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+        _apply_result(ledger, i, result, now)
         changed = True
     if changed:
         save_ledger(ledger)
@@ -252,28 +272,39 @@ def settle_open(*, now: datetime | None = None) -> pd.DataFrame:
 
 def sync_paper(scan: dict | None = None) -> pd.DataFrame:
     settle_open()
-    ledger = load_ledger()
-    void_same_day_opens(ledger)
+    void_same_day_opens(load_ledger())
+    settle_open()
     return open_from_scan(scan)
 
 
 def _book_stats(df: pd.DataFrame) -> dict:
     settled = df[df["status"] == "settled"] if not df.empty else df
     open_ = df[df["status"] == "open"] if not df.empty else df
+    voided = df[df["status"] == "void"] if not df.empty else df
+    scored = df[df.apply(_row_result, axis=1).isin(["yes", "no"])] if not df.empty else df
     pnl = float(pd.to_numeric(settled["pnl"], errors="coerce").fillna(0).sum()) if not settled.empty else 0.0
+    scored_pnl = float(pd.to_numeric(scored["pnl"], errors="coerce").fillna(0).sum()) if not scored.empty else 0.0
     wins = 0
+    scored_wins = 0
     if not settled.empty:
         wins = int((pd.to_numeric(settled["pnl"], errors="coerce").fillna(0) > 0).sum())
+    if not scored.empty:
+        scored_wins = int((pd.to_numeric(scored["pnl"], errors="coerce").fillna(0) > 0).sum())
     n_settled = int(len(settled))
+    n_scored = int(len(scored))
     reason = None
-    if not settled.empty and "reasoning_ok" in settled.columns:
-        flag = settled["reasoning_ok"].astype(str).str.lower().isin(["true", "1", "yes"])
-        reason = float(flag.mean()) if len(settled) else None
+    if not scored.empty and "reasoning_ok" in scored.columns:
+        flag = scored["reasoning_ok"].astype(str).str.lower().isin(["true", "1", "yes"])
+        reason = float(flag.mean()) if n_scored else None
     return {
         "n_settled": n_settled,
         "n_open": int(len(open_)),
+        "n_void": int(len(voided)),
+        "n_scored": n_scored,
         "cumulative_pnl": pnl,
+        "scored_pnl": scored_pnl,
         "win_rate": None if n_settled == 0 else wins / n_settled,
+        "scored_win_rate": None if n_scored == 0 else scored_wins / n_scored,
         "reasoning_hit_rate": reason,
     }
 
@@ -293,8 +324,12 @@ def paper_summary(ledger: pd.DataFrame | None = None) -> dict:
         "strategy": f"{NEAR.id}+{FAR.id}",
         "n_settled": totals["n_settled"],
         "n_open": totals["n_open"],
+        "n_void": totals["n_void"],
+        "n_scored": totals["n_scored"],
         "cumulative_pnl": totals["cumulative_pnl"],
+        "scored_pnl": totals["scored_pnl"],
         "win_rate": totals["win_rate"],
+        "scored_win_rate": totals["scored_win_rate"],
         "reasoning_hit_rate": totals["reasoning_hit_rate"],
         "by_strategy": by_strategy,
         "trades": df.fillna("").to_dict(orient="records") if not df.empty else [],

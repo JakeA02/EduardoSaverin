@@ -127,7 +127,9 @@
       is calendar D+1 HIGH/RAIN (volume ≥ 50); <strong>far</strong> is D+2–10
       plus weekend rain and weekly heat (volume ≥ 10). Maps Weather API tops out
       at 240 hours, so the far book cannot see the full 15-day WeatherNext
-      synoptic. Same-day highs are monitoring only. Daily highs settle on the
+      synoptic. Same-day near tickets are pulled from the live book (the print
+      already includes the realized window) but still scored when Kalshi settles,
+      so the ledger tracks whether the model was right. Daily highs settle on the
       source in each market’s rules (currently The Weather Company at the named
       CLI station, LST day). Trace rain counts as 0. Paper fills are hypothetical
       — no live Kalshi orders.
@@ -143,14 +145,22 @@
     const farBook = (paper.by_strategy || {}).far || {};
     document.getElementById("updated").textContent = payload.generated_at || "n/a";
 
+    const hit = (book) => book.scored_win_rate == null && book.reasoning_hit_rate == null
+      ? "—"
+      : ((100 * (book.scored_win_rate ?? book.reasoning_hit_rate)).toFixed(0) + "%");
+    const scoredSub = (book) => {
+      const n = book.n_scored || 0;
+      const voids = book.n_void || 0;
+      return n + " scored · " + voids + " voided · shadow " + money(book.scored_pnl);
+    };
     const kpis = [
       ["Markets scanned", payload.n_markets ?? 0, (payload.n_high || 0) + " high · " + (payload.n_rain || 0) + " rain · " + (payload.n_weekend || 0) + " weekend · " + (payload.n_weekly || 0) + " weekly"],
       ["Near tickets", payload.n_tradeable_near ?? payload.n_tradeable ?? 0, "D+1 · vol ≥ 50"],
       ["Far tickets", payload.n_tradeable_far ?? 0, "D+2–10 · vol ≥ 10"],
-      ["Near P&L", money(nearBook.cumulative_pnl ?? paper.cumulative_pnl), (nearBook.n_settled || 0) + " settled · " + (nearBook.n_open || 0) + " open"],
-      ["Far P&L", money(farBook.cumulative_pnl), (farBook.n_settled || 0) + " settled · " + (farBook.n_open || 0) + " open"],
-      ["Near win", nearBook.win_rate == null ? "—" : (100 * nearBook.win_rate).toFixed(0) + "%", "best " + (payload.best_ev_near == null ? "—" : (100 * payload.best_ev_near).toFixed(1) + "¢")],
-      ["Far win", farBook.win_rate == null ? "—" : (100 * farBook.win_rate).toFixed(0) + "%", "best " + (payload.best_ev_far == null ? "—" : (100 * payload.best_ev_far).toFixed(1) + "¢")],
+      ["Near P&L", money(nearBook.cumulative_pnl ?? paper.cumulative_pnl), (nearBook.n_settled || 0) + " settled fills · " + (nearBook.n_open || 0) + " open"],
+      ["Far P&L", money(farBook.cumulative_pnl), (farBook.n_settled || 0) + " settled fills · " + (farBook.n_open || 0) + " open"],
+      ["Near scored", hit(nearBook), scoredSub(nearBook)],
+      ["Far scored", hit(farBook), scoredSub(farBook)],
     ];
     document.getElementById("kpis").innerHTML = kpis.map(([label, value, sub]) =>
       `<div class="card"><div class="label">${label}</div><div class="value">${value}</div><div class="sub">${sub}</div></div>`
@@ -317,10 +327,11 @@
       document.getElementById("paper-rows").innerHTML = rows.map((r) => {
         const reason = r.reasoning_ok === "" || r.reasoning_ok == null ? "—" : (String(r.reasoning_ok) === "true" ? "held" : "failed");
         const book = r.strategy === "far" ? "far" : (r.strategy === "near" || r.strategy === "wx-kalshi-v0.1" ? "near" : (r.strategy || "—"));
+        const status = r.status === "void" && r.result ? "void · scored" : r.status;
         return `<tr>
           <td>${(r.opened_ts || "").slice(0, 16)}</td>
           <td>${book}</td>
-          <td>${r.status}</td>
+          <td>${status}</td>
           <td>${r.city}</td>
           <td>${r.ticker}</td>
           <td>${r.side}</td>
