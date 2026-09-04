@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-03 19:36 UTC",
+  "generated_at": "2026-09-04 07:22 UTC",
   "latest": {
     "week_ending": "2026-09-04",
     "predicted": 36.78452140722878,
@@ -13,8 +13,8 @@
   },
   "next_week": {
     "week_ending": "2026-09-11",
-    "predicted": 41.66849089404771,
-    "predicted_wn3": 41.66849089404771,
+    "predicted": 43.71889813894784,
+    "predicted_wn3": 43.71889813894784,
     "consensus": null,
     "actual": null,
     "source": null,
@@ -23,14 +23,14 @@
     "model_minus_consensus": null
   },
   "gate": {
-    "n_weeks": 0,
-    "model_mae": null,
-    "consensus_mae": null,
+    "n_weeks": 1,
+    "model_mae": 13.049351539007255,
+    "consensus_mae": 1.0,
     "rolling_26_model_mae": null,
     "rolling_26_consensus_mae": null,
-    "surprise_hit_rate": null,
+    "surprise_hit_rate": 0.0,
     "gate_pass": null,
-    "gate_reason": "Waiting for overlapping model predictions, consensus, and EIA actuals."
+    "gate_reason": "Need 26 overlapping weeks for the rolling gate; have 1."
   },
   "series": [
     {
@@ -68,7 +68,7 @@
       "predicted": 43.049351539007255,
       "predicted_wn3": null,
       "consensus": 31.0,
-      "actual": null,
+      "actual": 30.0,
       "source": "tradingeconomics",
       "model_version": "baseline-ols-v0.2-calibrated",
       "nwp_source": "cpc-ndfd"
@@ -85,8 +85,8 @@
     },
     {
       "week_ending": "2026-09-11",
-      "predicted": 41.66849089404771,
-      "predicted_wn3": 41.66849089404771,
+      "predicted": 43.71889813894784,
+      "predicted_wn3": 43.71889813894784,
       "consensus": null,
       "actual": null,
       "source": null,
