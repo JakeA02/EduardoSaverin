@@ -69,6 +69,81 @@
     .note { color: var(--muted); font-size: 12px; margin-top: 18px; line-height: 1.55; }
     .kind { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
     .kind.rain { color: var(--rain); }
+
+    /* Resolution scorecard */
+    .scorecard { margin-bottom: 16px; }
+    .scorecard-head {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 12px; margin-bottom: 12px;
+    }
+    .scorecard-head h2 { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+    .score-summary { display: flex; flex-wrap: wrap; gap: 10px; }
+    .score-stat {
+      display: flex; align-items: center; gap: 6px; font-size: 13px;
+      padding: 4px 10px; border-radius: 8px; background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+    }
+    .score-stat .n { font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 18px; }
+    .score-stat.correct { border-color: rgba(110,231,183,0.35); }
+    .score-stat.correct .n { color: var(--good); }
+    .score-stat.wrong { border-color: rgba(248,113,113,0.35); }
+    .score-stat.wrong .n { color: var(--bad); }
+    .score-stat.pending { border-color: rgba(251,191,36,0.35); }
+    .score-stat.pending .n { color: var(--warn); }
+    .score-stat.neutral .n { color: var(--muted); }
+    .hit-bar {
+      height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; margin-bottom: 12px;
+    }
+    .hit-bar-fill {
+      height: 100%; border-radius: 999px; background: var(--good);
+      transition: width 0.2s;
+    }
+    .score-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .score-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 8px;
+      max-height: 420px; overflow-y: auto; padding-right: 4px;
+    }
+    .score-tile {
+      border-radius: 10px; border: 1px solid var(--line); padding: 10px 11px;
+      font-size: 12px; line-height: 1.35; cursor: default;
+      border-left-width: 3px;
+    }
+    .score-tile.correct { border-left-color: var(--good); background: rgba(110,231,183,0.08); }
+    .score-tile.wrong { border-left-color: var(--bad); background: rgba(248,113,113,0.08); }
+    .score-tile.pending { border-left-color: var(--warn); background: rgba(251,191,36,0.06); }
+    .score-tile.awaiting { border-left-color: var(--muted); background: rgba(139,155,176,0.06); opacity: 0.85; }
+    .score-tile .top { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; margin-bottom: 4px; }
+    .score-tile .city { font-weight: 600; font-size: 13px; }
+    .score-tile .date { color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: 10px; }
+    .score-tile .meta { color: var(--muted); font-size: 11px; margin-bottom: 6px; }
+    .score-tile .outcome { display: flex; justify-content: space-between; align-items: center; }
+    .score-tile .verdict {
+      font-weight: 600; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .score-tile.correct .verdict { color: var(--good); }
+    .score-tile.wrong .verdict { color: var(--bad); }
+    .score-tile.pending .verdict { color: var(--warn); }
+    .score-tile.awaiting .verdict { color: var(--muted); }
+    .badge {
+      display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; padding: 2px 6px; border-radius: 4px;
+    }
+    .badge.ok { background: rgba(110,231,183,0.18); color: var(--good); }
+    .badge.no { background: rgba(248,113,113,0.18); color: var(--bad); }
+    .badge.wait { background: rgba(251,191,36,0.15); color: var(--warn); }
+    .badge.dim { background: rgba(139,155,176,0.12); color: var(--muted); }
+    .ledger-toggle {
+      background: none; border: none; color: var(--accent); font: inherit; font-size: 12px;
+      cursor: pointer; padding: 0; margin-top: 10px;
+    }
+    .ledger-toggle:hover { text-decoration: underline; }
+    .ledger-wrap { margin-top: 10px; }
+    .ledger-wrap.collapsed { display: none; }
+    .ledger-scroll { max-height: 320px; overflow-y: auto; }
+    tr.row-correct td { background: rgba(110,231,183,0.06); }
+    tr.row-wrong td { background: rgba(248,113,113,0.06); }
+    tr.row-pending td { background: rgba(251,191,36,0.04); }
+    tr.row-awaiting td { background: rgba(139,155,176,0.04); }
   </style>
 </head>
 <body>
@@ -82,6 +157,29 @@
   </header>
   <main>
     <section class="kpis" id="kpis"></section>
+    <section class="card scorecard" id="scorecard">
+      <div class="scorecard-head">
+        <h2>Resolution scorecard</h2>
+        <div class="score-summary" id="score-summary"></div>
+      </div>
+      <div class="hit-bar" id="hit-bar" title="Model reasoning hit rate (scored tickets)"><div class="hit-bar-fill" id="hit-bar-fill"></div></div>
+      <div class="score-filters" id="score-filters"></div>
+      <div class="score-grid" id="score-grid"></div>
+      <button type="button" class="ledger-toggle" id="ledger-toggle">Show full ledger</button>
+      <div class="ledger-wrap collapsed" id="ledger-wrap">
+        <div class="ledger-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th><th>Book</th><th>City</th><th>Side</th><th>Model</th>
+                <th>Result</th><th>Verdict</th><th>P&amp;L</th>
+              </tr>
+            </thead>
+            <tbody id="paper-rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
     <div class="filters" id="filters"></div>
     <section class="grid">
       <div class="card"><canvas id="scatter"></canvas></div>
@@ -106,19 +204,6 @@
           </tr>
         </thead>
         <tbody id="rows"></tbody>
-      </table>
-    </div>
-    <div class="card" style="margin-top:16px; overflow-x:auto">
-      <div class="label" style="margin-bottom:8px">Paper ledger (Kalshi weather, not QG)</div>
-      <table>
-        <thead>
-          <tr>
-            <th>Opened</th><th>Book</th><th>Status</th><th>City</th><th>Ticker</th>
-            <th>Side</th><th>Model</th><th>Entry</th><th>EV</th>
-            <th>Result</th><th>P&amp;L</th><th>Reasoning</th>
-          </tr>
-        </thead>
-        <tbody id="paper-rows"></tbody>
       </table>
     </div>
     <p class="note">
@@ -322,28 +407,139 @@
       });
     }
 
-    function renderPaper() {
-      const rows = (paper.trades || []).slice().reverse();
-      document.getElementById("paper-rows").innerHTML = rows.map((r) => {
-        const reason = r.reasoning_ok === "" || r.reasoning_ok == null ? "—" : (String(r.reasoning_ok) === "true" ? "held" : "failed");
-        const book = r.strategy === "far" ? "far" : (r.strategy === "near" || r.strategy === "wx-kalshi-v0.1" ? "near" : (r.strategy || "—"));
-        const status = r.status === "void" && r.result ? "void · scored" : r.status;
-        return `<tr>
-          <td>${(r.opened_ts || "").slice(0, 16)}</td>
-          <td>${book}</td>
-          <td>${status}</td>
-          <td>${r.city}</td>
-          <td>${r.ticker}</td>
-          <td>${r.side}</td>
-          <td>${pct(r.model_p)}</td>
-          <td>${pct(r.entry)}</td>
-          <td>${r.ev ? (100 * Number(r.ev)).toFixed(1) + "¢" : "—"}</td>
-          <td>${r.result || "—"}</td>
-          <td>${money(r.pnl)}</td>
-          <td>${reason}</td>
-        </tr>`;
-      }).join("") || `<tr><td colspan="12">No paper rows yet — run <code>kalshi-wx scan && kalshi-wx paper</code>.</td></tr>`;
+    function bookOf(r) {
+      return r.strategy === "far" ? "far" : (r.strategy === "near" || r.strategy === "wx-kalshi-v0.1" ? "near" : (r.strategy || "—"));
     }
+
+    function isScored(r) {
+      const res = String(r.result || "").toLowerCase();
+      return res === "yes" || res === "no";
+    }
+
+    function reasoningHeld(r) {
+      if (!isScored(r)) return null;
+      return String(r.reasoning_ok).toLowerCase() === "true";
+    }
+
+    function verdictOf(r) {
+      if (isScored(r)) return reasoningHeld(r) ? "correct" : "wrong";
+      if (r.status === "open") return "pending";
+      return "awaiting";
+    }
+
+    const scoreFilters = { verdict: "scored", book: "all" };
+
+    function scoreCounts(rows) {
+      const c = { correct: 0, wrong: 0, pending: 0, awaiting: 0 };
+      rows.forEach((r) => { c[verdictOf(r)] += 1; });
+      return c;
+    }
+
+    function filteredScoreRows(rows) {
+      return rows.filter((r) => {
+        if (scoreFilters.book !== "all" && bookOf(r) !== scoreFilters.book) return false;
+        const v = verdictOf(r);
+        if (scoreFilters.verdict === "all") return true;
+        if (scoreFilters.verdict === "scored") return v === "correct" || v === "wrong";
+        return v === scoreFilters.verdict;
+      });
+    }
+
+    function renderScorecard() {
+      const allRows = (paper.trades || []).slice();
+      const counts = scoreCounts(allRows);
+      const scored = counts.correct + counts.wrong;
+      const hitPct = scored ? Math.round(100 * counts.correct / scored) : 0;
+
+      document.getElementById("score-summary").innerHTML = [
+        ["correct", counts.correct, "Correct"],
+        ["wrong", counts.wrong, "Wrong"],
+        ["pending", counts.pending, "Open"],
+        ["neutral", counts.awaiting, "Awaiting"],
+      ].map(([cls, n, label]) =>
+        `<div class="score-stat ${cls}"><span class="n">${n}</span><span>${label}</span></div>`
+      ).join("");
+
+      const bar = document.getElementById("hit-bar-fill");
+      bar.style.width = scored ? hitPct + "%" : "0%";
+      document.getElementById("hit-bar").title = scored
+        ? `Model reasoning: ${hitPct}% correct (${counts.correct}/${scored} scored)`
+        : "No scored tickets yet";
+
+      const chips = [
+        ["verdict", "scored", "Scored"],
+        ["verdict", "correct", "✓ Correct"],
+        ["verdict", "wrong", "✗ Wrong"],
+        ["verdict", "pending", "Open"],
+        ["verdict", "awaiting", "Awaiting"],
+        ["verdict", "all", "All"],
+        ["book", "all", "Both books"],
+        ["book", "near", "Near"],
+        ["book", "far", "Far"],
+      ];
+      document.getElementById("score-filters").innerHTML = chips.map(([k, v, label]) => {
+        const on = scoreFilters[k] === v;
+        return `<button type="button" class="chip ${on ? "on" : ""}" data-sk="${k}" data-sv="${v}">${label}</button>`;
+      }).join("");
+      document.querySelectorAll("#score-filters .chip").forEach((btn) => {
+        btn.onclick = () => {
+          scoreFilters[btn.dataset.sk] = btn.dataset.sv;
+          renderScorecard();
+        };
+      });
+
+      const visible = filteredScoreRows(allRows).slice().reverse();
+      document.getElementById("score-grid").innerHTML = visible.map((r) => {
+        const v = verdictOf(r);
+        const labels = { correct: "Correct", wrong: "Wrong", pending: "Open", awaiting: "Awaiting" };
+        const side = (r.side || "—").toUpperCase();
+        const res = isScored(r) ? String(r.result).toUpperCase() : "—";
+        const kind = r.kind ? r.kind.replace("_", " ") : "";
+        return `<div class="score-tile ${v}" title="${r.ticker || ""}">
+          <div class="top"><span class="city">${r.city || "—"}</span><span class="date">${r.target_date || ""}</span></div>
+          <div class="meta">${bookOf(r)} · ${kind} · ${side} @ ${pct(r.entry)}</div>
+          <div class="outcome">
+            <span class="muted">→ ${res}</span>
+            <span class="verdict">${labels[v]}</span>
+          </div>
+        </div>`;
+      }).join("") || `<div class="muted" style="grid-column:1/-1;padding:12px 4px">No tickets match this filter.</div>`;
+
+      renderPaper(visible);
+    }
+
+    function renderPaper(rows) {
+      document.getElementById("paper-rows").innerHTML = rows.map((r) => {
+        const v = verdictOf(r);
+        const verdictBadge = v === "correct"
+          ? `<span class="badge ok">Correct</span>`
+          : v === "wrong"
+            ? `<span class="badge no">Wrong</span>`
+            : v === "pending"
+              ? `<span class="badge wait">Open</span>`
+              : `<span class="badge dim">Awaiting</span>`;
+        const resBadge = isScored(r)
+          ? `<span class="badge ${reasoningHeld(r) ? "ok" : "no"}">${String(r.result).toUpperCase()}</span>`
+          : `<span class="badge dim">—</span>`;
+        return `<tr class="row-${v}">
+          <td>${r.target_date || (r.opened_ts || "").slice(0, 10)}</td>
+          <td>${bookOf(r)}</td>
+          <td>${r.city}</td>
+          <td>${(r.side || "—").toUpperCase()}</td>
+          <td>${pct(r.model_p)}</td>
+          <td>${resBadge}</td>
+          <td>${verdictBadge}</td>
+          <td>${money(r.pnl)}</td>
+        </tr>`;
+      }).join("") || `<tr><td colspan="8">No paper rows yet — run <code>kalshi-wx scan && kalshi-wx paper</code>.</td></tr>`;
+    }
+
+    document.getElementById("ledger-toggle").onclick = () => {
+      const wrap = document.getElementById("ledger-wrap");
+      const btn = document.getElementById("ledger-toggle");
+      const collapsed = wrap.classList.toggle("collapsed");
+      btn.textContent = collapsed ? "Show full ledger" : "Hide full ledger";
+    };
 
     function redraw() {
       const rows = visible();
@@ -364,7 +560,7 @@
     renderFilters();
     redraw();
     renderTmax();
-    renderPaper();
+    renderScorecard();
   </script>
 </body>
 </html>

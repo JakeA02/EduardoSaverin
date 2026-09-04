@@ -63,6 +63,7 @@ def test_generate_writes_separate_kalshi_folder(tmp_path: Path) -> None:
     assert "near" in html and "far" in html
     assert "Two paper books" in html
     assert "scored when Kalshi settles" in html
+    assert "Resolution scorecard" in html
     assert (tmp_path / "data.json").exists()
 
 
