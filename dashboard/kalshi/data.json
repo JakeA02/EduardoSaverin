@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "generated_at": "2026-09-05 11:57 UTC",
+=======
+  "generated_at": "2026-09-05 16:31 UTC",
+>>>>>>> 155c591 (res timing fix)
   "model_version": "wn3-maps-v0.3",
   "strategy": "near+far",
   "ts_utc": "2026-09-05T11:57:10Z",
@@ -9920,6 +9924,7 @@
   ],
   "paper": {
     "strategy": "near+far",
+<<<<<<< HEAD
     "n_settled": 0,
     "n_open": 14,
     "n_void": 56,
@@ -9929,10 +9934,22 @@
     "win_rate": null,
     "scored_win_rate": 0.12,
     "reasoning_hit_rate": 0.4,
+=======
+    "n_settled": 19,
+    "n_open": 23,
+    "n_void": 19,
+    "n_scored": 38,
+    "cumulative_pnl": -1.4012000000000002,
+    "scored_pnl": -2.736,
+    "win_rate": 0.21052631578947367,
+    "scored_win_rate": 0.15789473684210525,
+    "reasoning_hit_rate": 0.47368421052631576,
+>>>>>>> 155c591 (res timing fix)
     "by_strategy": {
       "near": {
         "strategy": "near",
         "label": "D+1",
+<<<<<<< HEAD
         "n_settled": 0,
         "n_open": 6,
         "n_void": 56,
@@ -9942,6 +9959,17 @@
         "win_rate": null,
         "scored_win_rate": 0.12,
         "reasoning_hit_rate": 0.4
+=======
+        "n_settled": 19,
+        "n_open": 15,
+        "n_void": 19,
+        "n_scored": 38,
+        "cumulative_pnl": -1.4012000000000002,
+        "scored_pnl": -2.736,
+        "win_rate": 0.21052631578947367,
+        "scored_win_rate": 0.15789473684210525,
+        "reasoning_hit_rate": 0.47368421052631576
+>>>>>>> 155c591 (res timing fix)
       },
       "far": {
         "strategy": "far",
@@ -9960,8 +9988,13 @@
     "trades": [
       {
         "opened_ts": "2026-09-03T19:55:41Z",
+<<<<<<< HEAD
         "settled_ts": "2026-09-05T11:57:10Z",
         "status": "void",
+=======
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
+>>>>>>> 155c591 (res timing fix)
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHNY-26SEP04-B86.5",
         "event_ticker": "KXHIGHNY-26SEP04",
@@ -9978,8 +10011,13 @@
         "result": "no",
         "pnl": -0.0746,
         "reasoning_ok": "true",
+<<<<<<< HEAD
         "close_time": "2026-09-05T05:00:00Z",
         "note": "void \u00b7 same-day / realized window excluded"
+=======
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
+>>>>>>> 155c591 (res timing fix)
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10006,8 +10044,8 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
-        "settled_ts": "2026-09-04T07:23:11Z",
-        "status": "void",
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHCHI-26SEP04-B89.5",
         "event_ticker": "KXHIGHCHI-26SEP04",
@@ -10021,11 +10059,11 @@
         "mid": 0.125,
         "ev": 0.1232,
         "fee": 0.0079,
-        "result": "",
-        "pnl": "",
-        "reasoning_ok": "",
-        "close_time": "2026-09-05T06:00:00Z",
-        "note": "void \u00b7 same-day / realized window excluded"
+        "result": "no",
+        "pnl": -0.1379,
+        "reasoning_ok": "true",
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10052,8 +10090,8 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
-        "settled_ts": "2026-09-04T07:23:11Z",
-        "status": "void",
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHLAX-26SEP04-B77.5",
         "event_ticker": "KXHIGHLAX-26SEP04",
@@ -10067,11 +10105,11 @@
         "mid": 0.595,
         "ev": 0.4103,
         "fee": 0.0169,
-        "result": "",
-        "pnl": "",
-        "reasoning_ok": "",
+        "result": "yes",
+        "pnl": -0.4268999999999999,
+        "reasoning_ok": "false",
         "close_time": "2026-09-05T08:00:00Z",
-        "note": "void \u00b7 same-day / realized window excluded"
+        "note": "paper \u00b7 near \u00b7 no live order"
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10098,8 +10136,8 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
-        "settled_ts": "2026-09-04T07:23:11Z",
-        "status": "void",
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHTDAL-26SEP04-B97.5",
         "event_ticker": "KXHIGHTDAL-26SEP04",
@@ -10113,11 +10151,11 @@
         "mid": 0.19,
         "ev": 0.0888,
         "fee": 0.0099,
-        "result": "",
-        "pnl": "",
-        "reasoning_ok": "",
-        "close_time": "2026-09-05T06:00:00Z",
-        "note": "void \u00b7 same-day / realized window excluded"
+        "result": "no",
+        "pnl": 0.1601,
+        "reasoning_ok": "true",
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10144,8 +10182,8 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
-        "settled_ts": "2026-09-04T07:23:11Z",
-        "status": "void",
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHAUS-26SEP04-B93.5",
         "event_ticker": "KXHIGHAUS-26SEP04",
@@ -10159,11 +10197,11 @@
         "mid": 0.235,
         "ev": 0.0901,
         "fee": 0.0128,
-        "result": "",
-        "pnl": "",
-        "reasoning_ok": "",
-        "close_time": "2026-09-05T06:00:00Z",
-        "note": "void \u00b7 same-day / realized window excluded"
+        "result": "no",
+        "pnl": -0.2527999999999999,
+        "reasoning_ok": "true",
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10190,8 +10228,8 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
-        "settled_ts": "2026-09-04T07:23:11Z",
-        "status": "void",
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHTHOU-26SEP04-T89",
         "event_ticker": "KXHIGHTHOU-26SEP04",
@@ -10205,11 +10243,11 @@
         "mid": 0.255,
         "ev": 0.0977,
         "fee": 0.0135,
-        "result": "",
-        "pnl": "",
-        "reasoning_ok": "",
-        "close_time": "2026-09-05T06:00:00Z",
-        "note": "void \u00b7 same-day / realized window excluded"
+        "result": "no",
+        "pnl": -0.2735,
+        "reasoning_ok": "true",
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10236,8 +10274,13 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
+<<<<<<< HEAD
         "settled_ts": "2026-09-05T11:57:10Z",
         "status": "void",
+=======
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
+>>>>>>> 155c591 (res timing fix)
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHPHIL-26SEP04-T86",
         "event_ticker": "KXHIGHPHIL-26SEP04",
@@ -10254,8 +10297,13 @@
         "result": "no",
         "pnl": -0.0746,
         "reasoning_ok": "true",
+<<<<<<< HEAD
         "close_time": "2026-09-05T05:00:00Z",
         "note": "void \u00b7 same-day / realized window excluded"
+=======
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
+>>>>>>> 155c591 (res timing fix)
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10282,8 +10330,13 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
+<<<<<<< HEAD
         "settled_ts": "2026-09-05T11:57:10Z",
         "status": "void",
+=======
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
+>>>>>>> 155c591 (res timing fix)
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHTBOS-26SEP04-T80",
         "event_ticker": "KXHIGHTBOS-26SEP04",
@@ -10300,8 +10353,13 @@
         "result": "no",
         "pnl": -0.0852,
         "reasoning_ok": "false",
+<<<<<<< HEAD
         "close_time": "2026-09-05T05:00:00Z",
         "note": "void \u00b7 same-day / realized window excluded"
+=======
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
+>>>>>>> 155c591 (res timing fix)
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10328,8 +10386,13 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
+<<<<<<< HEAD
         "settled_ts": "2026-09-05T11:57:10Z",
         "status": "void",
+=======
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
+>>>>>>> 155c591 (res timing fix)
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHTATL-26SEP04-T92",
         "event_ticker": "KXHIGHTATL-26SEP04",
@@ -10346,8 +10409,13 @@
         "result": "no",
         "pnl": -0.0746,
         "reasoning_ok": "true",
+<<<<<<< HEAD
         "close_time": "2026-09-05T05:00:00Z",
         "note": "void \u00b7 same-day / realized window excluded"
+=======
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
+>>>>>>> 155c591 (res timing fix)
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10374,8 +10442,8 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
-        "settled_ts": "2026-09-04T07:23:11Z",
-        "status": "void",
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHTSFO-26SEP04-B66.5",
         "event_ticker": "KXHIGHTSFO-26SEP04",
@@ -10389,11 +10457,11 @@
         "mid": 0.075,
         "ev": 0.1831,
         "fee": 0.0057,
-        "result": "",
-        "pnl": "",
-        "reasoning_ok": "",
+        "result": "no",
+        "pnl": -0.0957,
+        "reasoning_ok": "true",
         "close_time": "2026-09-05T08:00:00Z",
-        "note": "void \u00b7 same-day / realized window excluded"
+        "note": "paper \u00b7 near \u00b7 no live order"
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10420,8 +10488,8 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
-        "settled_ts": "2026-09-04T07:23:11Z",
-        "status": "void",
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHTMIN-26SEP04-T88",
         "event_ticker": "KXHIGHTMIN-26SEP04",
@@ -10435,11 +10503,11 @@
         "mid": 0.15,
         "ev": 0.6771,
         "fee": 0.0099,
-        "result": "",
-        "pnl": "",
-        "reasoning_ok": "",
-        "close_time": "2026-09-05T06:00:00Z",
-        "note": "void \u00b7 same-day / realized window excluded"
+        "result": "yes",
+        "pnl": 0.8200999999999999,
+        "reasoning_ok": "true",
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10466,8 +10534,8 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
-        "settled_ts": "2026-09-04T07:23:11Z",
-        "status": "void",
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHTPHX-26SEP04-T100",
         "event_ticker": "KXHIGHTPHX-26SEP04",
@@ -10481,11 +10549,11 @@
         "mid": 0.135,
         "ev": 0.3516,
         "fee": 0.0084,
-        "result": "",
-        "pnl": "",
-        "reasoning_ok": "",
-        "close_time": "2026-09-05T07:00:00Z",
-        "note": "void \u00b7 same-day / realized window excluded"
+        "result": "no",
+        "pnl": -0.1484,
+        "reasoning_ok": "false",
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10512,8 +10580,8 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
-        "settled_ts": "2026-09-04T07:23:11Z",
-        "status": "void",
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHTOKC-26SEP04-T95",
         "event_ticker": "KXHIGHTOKC-26SEP04",
@@ -10527,11 +10595,11 @@
         "mid": 0.065,
         "ev": 0.3269,
         "fee": 0.0052,
-        "result": "",
-        "pnl": "",
-        "reasoning_ok": "",
-        "close_time": "2026-09-05T06:00:00Z",
-        "note": "void \u00b7 same-day / realized window excluded"
+        "result": "no",
+        "pnl": -0.0852,
+        "reasoning_ok": "true",
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10558,8 +10626,8 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
-        "settled_ts": "2026-09-04T07:23:11Z",
-        "status": "void",
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHTSEA-26SEP04-B70.5",
         "event_ticker": "KXHIGHTSEA-26SEP04",
@@ -10573,11 +10641,11 @@
         "mid": 0.425,
         "ev": 0.2851,
         "fee": 0.0171,
-        "result": "",
-        "pnl": "",
-        "reasoning_ok": "",
+        "result": "yes",
+        "pnl": -0.5971,
+        "reasoning_ok": "false",
         "close_time": "2026-09-05T08:00:00Z",
-        "note": "void \u00b7 same-day / realized window excluded"
+        "note": "paper \u00b7 near \u00b7 no live order"
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10604,8 +10672,8 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
-        "settled_ts": "2026-09-04T07:23:11Z",
-        "status": "void",
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHDEN-26SEP04-B92.5",
         "event_ticker": "KXHIGHDEN-26SEP04",
@@ -10619,11 +10687,11 @@
         "mid": 0.525,
         "ev": 0.3448,
         "fee": 0.0175,
-        "result": "",
-        "pnl": "",
-        "reasoning_ok": "",
-        "close_time": "2026-09-05T07:00:00Z",
-        "note": "void \u00b7 same-day / realized window excluded"
+        "result": "yes",
+        "pnl": -0.4975,
+        "reasoning_ok": "false",
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10650,8 +10718,8 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
-        "settled_ts": "2026-09-04T07:23:11Z",
-        "status": "void",
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHTNOLA-26SEP04-T87",
         "event_ticker": "KXHIGHTNOLA-26SEP04",
@@ -10665,11 +10733,11 @@
         "mid": 0.295,
         "ev": 0.5501,
         "fee": 0.0147,
-        "result": "",
-        "pnl": "",
-        "reasoning_ok": "",
-        "close_time": "2026-09-05T06:00:00Z",
-        "note": "void \u00b7 same-day / realized window excluded"
+        "result": "no",
+        "pnl": -0.3147,
+        "reasoning_ok": "false",
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10696,8 +10764,13 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
+<<<<<<< HEAD
         "settled_ts": "2026-09-05T11:57:10Z",
         "status": "void",
+=======
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
+>>>>>>> 155c591 (res timing fix)
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHTDC-26SEP04-T91",
         "event_ticker": "KXHIGHTDC-26SEP04",
@@ -10714,8 +10787,13 @@
         "result": "yes",
         "pnl": 0.8621,
         "reasoning_ok": "true",
+<<<<<<< HEAD
         "close_time": "2026-09-05T05:00:00Z",
         "note": "void \u00b7 same-day / realized window excluded"
+=======
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
+>>>>>>> 155c591 (res timing fix)
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10742,8 +10820,13 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
+<<<<<<< HEAD
         "settled_ts": "2026-09-05T11:57:10Z",
         "status": "void",
+=======
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
+>>>>>>> 155c591 (res timing fix)
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHMIA-26SEP04-B91.5",
         "event_ticker": "KXHIGHMIA-26SEP04",
@@ -10760,8 +10843,13 @@
         "result": "yes",
         "pnl": -0.5474,
         "reasoning_ok": "false",
+<<<<<<< HEAD
         "close_time": "2026-09-05T05:00:00Z",
         "note": "void \u00b7 same-day / realized window excluded"
+=======
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
+>>>>>>> 155c591 (res timing fix)
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10788,8 +10876,8 @@
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
-        "settled_ts": "2026-09-04T07:23:11Z",
-        "status": "void",
+        "settled_ts": "",
+        "status": "open",
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXRAIN-26SEP04-SEA",
         "event_ticker": "KXRAIN-26SEP04",
@@ -10807,7 +10895,7 @@
         "pnl": "",
         "reasoning_ok": "",
         "close_time": "2026-09-05T08:00:00Z",
-        "note": "void \u00b7 same-day / realized window excluded"
+        "note": "paper \u00b7 near \u00b7 no live order"
       },
       {
         "opened_ts": "2026-09-03T19:55:41Z",
@@ -10834,8 +10922,8 @@
       },
       {
         "opened_ts": "2026-09-03T19:58:42Z",
-        "settled_ts": "2026-09-04T07:23:11Z",
-        "status": "void",
+        "settled_ts": "2026-09-05T16:31:36Z",
+        "status": "settled",
         "strategy": "wx-kalshi-v0.1",
         "ticker": "KXHIGHTOKC-26SEP04-B97.5",
         "event_ticker": "KXHIGHTOKC-26SEP04",
@@ -10849,11 +10937,11 @@
         "mid": 0.465,
         "ev": 0.25,
         "fee": 0.0174,
-        "result": "",
-        "pnl": "",
-        "reasoning_ok": "",
-        "close_time": "2026-09-05T06:00:00Z",
-        "note": "void \u00b7 same-day / realized window excluded"
+        "result": "no",
+        "pnl": 0.4426,
+        "reasoning_ok": "true",
+        "close_time": "2026-09-05T08:00:00Z",
+        "note": "paper \u00b7 near \u00b7 no live order"
       },
       {
         "opened_ts": "2026-09-03T20:20:42Z",

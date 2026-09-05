@@ -2,15 +2,24 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 
-from kalshi_wx.config import N_CONTRACTS, PAPER_DIR, ensure_dirs
+from kalshi_wx.config import (
+    N_CONTRACTS,
+    PAPER_CLOSE_HOUR_ET,
+    PAPER_DIR,
+    PAPER_TZ,
+    ensure_dirs,
+)
 from kalshi_wx.horizons import FAR, NEAR, STRATEGIES, policy_by_id
 from kalshi_wx.kalshi import KalshiError, get_market
 from kalshi_wx.scan import load_latest_scan
+
+ET = ZoneInfo(PAPER_TZ)
 
 LEDGER_PATH = PAPER_DIR / "kalshi_trades.csv"
 COLUMNS = [
@@ -113,30 +122,103 @@ def _best_per_event(candidates: list[dict], *, strategy: str = NEAR.id) -> list[
     return list(best.values())
 
 
-def void_same_day_opens(ledger: pd.DataFrame, *, today=None) -> pd.DataFrame:
-    """Pull same-day near tickets out of the live book; still score them later.
+def paper_close_time(target: date) -> datetime:
+    """4:00 America/New_York on the calendar day after `target`.
 
-    The Kalshi print already includes the realized window, so these are not
-    valid paper fills. They stay on the ledger as `void` and `settle_open`
-    backfills Kalshi `result` / hypothetical P&L / `reasoning_ok`.
+    4am Eastern is 1am Pacific in both standard and daylight time, so the
+    LST day is finished for every CONUS station in this book (−5 to −8).
     """
-    from datetime import date as date_cls
+    nxt = target + timedelta(days=1)
+    local = datetime(nxt.year, nxt.month, nxt.day, PAPER_CLOSE_HOUR_ET, 0, tzinfo=ET)
+    return local.astimezone(UTC)
 
-    today = today or datetime.now(UTC).date()
+
+def _parse_ts(raw: str | None) -> datetime | None:
+    text = str(raw or "").strip()
+    if not text:
+        return None
+    try:
+        return datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def _as_date(raw) -> date | None:
+    try:
+        return raw if isinstance(raw, date) and not isinstance(raw, datetime) else date.fromisoformat(str(raw or ""))
+    except ValueError:
+        return None
+
+
+def _opened_et_date(opened_ts: str | None) -> date | None:
+    dt = _parse_ts(opened_ts)
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=UTC)
+    return dt.astimezone(ET).date()
+
+
+def _row_close_dt(row) -> datetime | None:
+    """Near book: 4am ET on target+1. Far book: Kalshi close_time."""
+    if strategy_id(row.get("strategy")) == NEAR.id:
+        target = _as_date(row.get("target_date"))
+        if target is not None:
+            return paper_close_time(target)
+    return _parse_ts(row.get("close_time"))
+
+
+def _paper_close_iso(target: date) -> str:
+    return paper_close_time(target).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def void_same_day_opens(ledger: pd.DataFrame, *, today=None) -> pd.DataFrame:
+    """Void near tickets that were opened on or after the target date.
+
+    Those fills already include the realized window. Overnight D+1 tickets
+    stay open until 4am Eastern the next morning, then settle as live P&L.
+    """
+    del today  # open-vs-target uses the fill timestamp, not the scan date
     changed = False
     for i, row in ledger.iterrows():
         if row.get("status") != "open":
             continue
         if strategy_id(row.get("strategy")) != NEAR.id:
             continue
-        try:
-            target = date_cls.fromisoformat(str(row.get("target_date") or ""))
-        except ValueError:
+        target = _as_date(row.get("target_date"))
+        opened = _opened_et_date(row.get("opened_ts"))
+        if target is None or opened is None:
             continue
-        if target <= today:
+        if opened >= target:
             ledger.at[i, "status"] = "void"
             ledger.at[i, "note"] = "void · same-day / realized window excluded"
             changed = True
+    if changed:
+        save_ledger(ledger)
+    return ledger
+
+
+def restore_overnight_near_voids(ledger: pd.DataFrame) -> pd.DataFrame:
+    """Put valid D+1 fills back on the live book if they were voided overnight."""
+    changed = False
+    for i, row in ledger.iterrows():
+        if str(row.get("status") or "") != "void":
+            continue
+        if strategy_id(row.get("strategy")) != NEAR.id:
+            continue
+        target = _as_date(row.get("target_date"))
+        opened = _opened_et_date(row.get("opened_ts"))
+        if target is None or opened is None or opened >= target:
+            continue
+        if _row_result(row) in {"yes", "no"}:
+            ledger.at[i, "status"] = "settled"
+            ledger.at[i, "note"] = "paper · near · no live order"
+        else:
+            ledger.at[i, "status"] = "open"
+            ledger.at[i, "note"] = "paper · near · no live order"
+            ledger.at[i, "close_time"] = _paper_close_iso(target)
+            ledger.at[i, "settled_ts"] = ""
+        changed = True
     if changed:
         save_ledger(ledger)
     return ledger
@@ -172,6 +254,11 @@ def open_from_scan(scan: dict | None = None) -> pd.DataFrame:
             already = ledger[ledger["ticker"] == ticker]
             if not already.empty and (already["status"] == "open").any():
                 continue
+            target = _as_date(row.get("target_date"))
+            if policy.id == NEAR.id and target is not None:
+                close_time = _paper_close_iso(target)
+            else:
+                close_time = row.get("close_time") or ""
             new_rows.append(
                 {
                     "opened_ts": ts,
@@ -193,7 +280,7 @@ def open_from_scan(scan: dict | None = None) -> pd.DataFrame:
                     "result": "",
                     "pnl": "",
                     "reasoning_ok": "",
-                    "close_time": row.get("close_time") or "",
+                    "close_time": close_time,
                     "note": f"paper · {policy.id} · no live order",
                 }
             )
@@ -238,6 +325,8 @@ def settle_open(*, now: datetime | None = None) -> pd.DataFrame:
     """Fill Kalshi outcomes on live opens and on voided same-day tickets."""
     ledger = load_ledger()
     now = now or datetime.now(UTC)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=UTC)
     changed = False
     for i, row in ledger.iterrows():
         status = str(row.get("status") or "")
@@ -248,14 +337,9 @@ def settle_open(*, now: datetime | None = None) -> pd.DataFrame:
         ticker = str(row.get("ticker") or "")
         if not ticker:
             continue
-        close = str(row.get("close_time") or "")
-        if close:
-            try:
-                close_dt = datetime.fromisoformat(close.replace("Z", "+00:00"))
-            except ValueError:
-                close_dt = None
-            if close_dt is not None and close_dt > now:
-                continue
+        close_dt = _row_close_dt(row)
+        if close_dt is not None and close_dt > now:
+            continue
         try:
             market = get_market(ticker)
         except KalshiError:
@@ -271,7 +355,7 @@ def settle_open(*, now: datetime | None = None) -> pd.DataFrame:
 
 
 def sync_paper(scan: dict | None = None) -> pd.DataFrame:
-    settle_open()
+    restore_overnight_near_voids(load_ledger())
     void_same_day_opens(load_ledger())
     settle_open()
     return open_from_scan(scan)

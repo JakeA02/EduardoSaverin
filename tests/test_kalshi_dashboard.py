@@ -6,7 +6,14 @@ from pathlib import Path
 from kalshi_wx.dashboard import generate
 from kalshi_wx.forecast import daily_from_hours, hour_lst_date
 from kalshi_wx.forecast import _dedupe_hours
-from kalshi_wx.paper import _best_per_event, _pnl, paper_summary, void_same_day_opens
+from kalshi_wx.paper import (
+    _best_per_event,
+    _pnl,
+    paper_close_time,
+    paper_summary,
+    restore_overnight_near_voids,
+    void_same_day_opens,
+)
 from kalshi_wx.stations import BY_CITY
 
 
@@ -137,7 +144,16 @@ def test_weekend_rain_dedupes_by_ticker_not_shared_event() -> None:
     }
 
 
-def test_void_same_day_skips_far_book(monkeypatch) -> None:
+def test_paper_close_is_4am_eastern_on_target_plus_one() -> None:
+    from datetime import UTC, datetime
+
+    summer = paper_close_time(date(2026, 9, 4))
+    assert summer == datetime(2026, 9, 5, 8, 0, tzinfo=UTC)
+    winter = paper_close_time(date(2026, 1, 4))
+    assert winter == datetime(2026, 1, 5, 9, 0, tzinfo=UTC)
+
+
+def test_void_same_day_skips_overnight_d1_and_far_book(monkeypatch) -> None:
     import pandas as pd
 
     monkeypatch.setattr("kalshi_wx.paper.save_ledger", lambda df: df)
@@ -146,14 +162,16 @@ def test_void_same_day_skips_far_book(monkeypatch) -> None:
             {
                 "status": "open",
                 "strategy": "near",
-                "target_date": "2026-09-03",
-                "note": "",
+                "target_date": "2026-09-04",
+                "opened_ts": "2026-09-03T19:55:41Z",
+                "note": "paper · near · no live order",
                 "settled_ts": "",
             },
             {
                 "status": "open",
                 "strategy": "wx-kalshi-v0.1",
                 "target_date": "2026-09-03",
+                "opened_ts": "2026-09-03T19:55:41Z",
                 "note": "",
                 "settled_ts": "",
             },
@@ -161,15 +179,60 @@ def test_void_same_day_skips_far_book(monkeypatch) -> None:
                 "status": "open",
                 "strategy": "far",
                 "target_date": "2026-09-03",
+                "opened_ts": "2026-09-03T20:20:42Z",
                 "note": "paper · far · no live order",
                 "settled_ts": "",
             },
         ]
     )
-    out = void_same_day_opens(ledger, today=date(2026, 9, 3))
-    assert out.loc[0, "status"] == "void"
+    out = void_same_day_opens(ledger, today=date(2026, 9, 4))
+    assert out.loc[0, "status"] == "open"
     assert out.loc[1, "status"] == "void"
     assert out.loc[2, "status"] == "open"
+
+
+def test_restore_overnight_near_voids(monkeypatch) -> None:
+    import pandas as pd
+
+    monkeypatch.setattr("kalshi_wx.paper.save_ledger", lambda df: df)
+    ledger = pd.DataFrame(
+        [
+            {
+                "status": "void",
+                "strategy": "near",
+                "target_date": "2026-09-04",
+                "opened_ts": "2026-09-03T19:55:41Z",
+                "result": "",
+                "note": "void · same-day / realized window excluded",
+                "close_time": "2026-09-05T05:00:00Z",
+                "settled_ts": "2026-09-04T07:23:11Z",
+            },
+            {
+                "status": "void",
+                "strategy": "near",
+                "target_date": "2026-09-03",
+                "opened_ts": "2026-09-03T19:55:41Z",
+                "result": "yes",
+                "note": "void · same-day / realized window excluded",
+                "settled_ts": "2026-09-04T12:17:48Z",
+            },
+            {
+                "status": "void",
+                "strategy": "near",
+                "target_date": "2026-09-04",
+                "opened_ts": "2026-09-03T19:55:41Z",
+                "result": "no",
+                "pnl": 0.5,
+                "note": "void · same-day / realized window excluded",
+                "settled_ts": "2026-09-05T12:00:00Z",
+            },
+        ]
+    )
+    out = restore_overnight_near_voids(ledger)
+    assert out.loc[0, "status"] == "open"
+    assert str(out.loc[0, "close_time"]) == "2026-09-05T08:00:00Z"
+    assert out.loc[1, "status"] == "void"
+    assert out.loc[2, "status"] == "settled"
 
 
 def test_paper_summary_groups_legacy_near_rows() -> None:
@@ -270,6 +333,51 @@ def test_settle_open_scores_void_without_promoting_to_settled(monkeypatch) -> No
     assert str(out.loc[0, "settled_ts"]).startswith("2026-09-04")
 
 
+def test_settle_open_waits_until_4am_et(monkeypatch) -> None:
+    from datetime import UTC, datetime
+
+    import pandas as pd
+
+    from kalshi_wx.paper import settle_open
+
+    ledger = pd.DataFrame(
+        [
+            {
+                "status": "open",
+                "strategy": "near",
+                "ticker": "KXHIGHNY-26SEP04-B86.5",
+                "target_date": "2026-09-04",
+                "side": "yes",
+                "n_contracts": 1,
+                "model_p": 0.29,
+                "entry": 0.07,
+                "fee": 0.005,
+                "result": "",
+                "pnl": None,
+                "reasoning_ok": "",
+                "close_time": "2026-09-05T05:00:00Z",
+                "settled_ts": "",
+            }
+        ]
+    )
+    called = {"n": 0}
+
+    def _market(_ticker: str) -> dict:
+        called["n"] += 1
+        return {"result": "yes"}
+
+    monkeypatch.setattr("kalshi_wx.paper.load_ledger", lambda: ledger)
+    monkeypatch.setattr("kalshi_wx.paper.save_ledger", lambda df: df)
+    monkeypatch.setattr("kalshi_wx.paper.get_market", _market)
+    before = settle_open(now=datetime(2026, 9, 5, 7, 59, tzinfo=UTC))
+    assert called["n"] == 0
+    assert before.loc[0, "status"] == "open"
+    after = settle_open(now=datetime(2026, 9, 5, 8, 0, tzinfo=UTC))
+    assert called["n"] == 1
+    assert after.loc[0, "status"] == "settled"
+    assert after.loc[0, "result"] == "yes"
+
+
 def test_settle_open_skips_void_before_close(monkeypatch) -> None:
     from datetime import UTC, datetime
 
@@ -283,6 +391,7 @@ def test_settle_open_skips_void_before_close(monkeypatch) -> None:
                 "status": "void",
                 "strategy": "near",
                 "ticker": "KXHIGHNY-26SEP04-B86.5",
+                "target_date": "2026-09-04",
                 "side": "yes",
                 "n_contracts": 1,
                 "model_p": 0.29,

@@ -212,9 +212,10 @@
       is calendar D+1 HIGH/RAIN (volume ≥ 50); <strong>far</strong> is D+2–10
       plus weekend rain and weekly heat (volume ≥ 10). Maps Weather API tops out
       at 240 hours, so the far book cannot see the full 15-day WeatherNext
-      synoptic. Same-day near tickets are pulled from the live book (the print
-      already includes the realized window) but still scored when Kalshi settles,
-      so the ledger tracks whether the model was right. Daily highs settle on the
+      synoptic. Near D+1 fills stay on the live book overnight and settle at
+      4:00 AM Eastern the next morning (after local midnight in every CONUS
+      timezone), then scored when Kalshi settles. Same-day opens are still
+      excluded — the print already includes the realized window. Daily highs settle on the
       source in each market’s rules (currently The Weather Company at the named
       CLI station, LST day). Trace rain counts as 0. Paper fills are hypothetical
       — no live Kalshi orders.

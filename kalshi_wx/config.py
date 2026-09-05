@@ -43,6 +43,11 @@ STRATEGY_NEAR = "near"
 STRATEGY_FAR = "far"
 STRATEGY = STRATEGY_NEAR  # legacy alias used by older ledger rows via HorizonPolicy.legacy_ids
 
+# Overnight D+1 fills stay live until 4:00 America/New_York on target+1.
+# That is 1am Pacific year-round, after local midnight for every CONUS station.
+PAPER_TZ = "America/New_York"
+PAPER_CLOSE_HOUR_ET = 4
+
 # σ for integer °F high: day-of ~2°F MAE, grows with lead.
 TMAX_SIGMA_BASE_F = 1.8
 TMAX_SIGMA_PER_LEAD_F = 0.45
