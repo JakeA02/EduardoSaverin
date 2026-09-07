@@ -41,7 +41,8 @@ The pipeline runs unattended on **GitHub Actions** ([Forecast Pipeline](https://
 Add `GOOGLE_MAPS_API_KEY` as a repo secret to enable the WeatherNext 3 A/B (and next-week attempt). Without it, CPC-NDFD still runs.
 
 **Live dashboard:** https://eduardo-saverin-rouge.vercel.app  
-**Kalshi weather:** https://eduardo-saverin-rouge.vercel.app/kalshi/
+**Kalshi weather:** https://eduardo-saverin-rouge.vercel.app/kalshi/  
+**Trading bot:** https://eduardo-saverin-rouge.vercel.app/bot/ (backend on [Fly.io](weather_bot/README.md#deploy-backend-to-flyio-free-tier))
 
 ## Project layout
 
@@ -49,8 +50,10 @@ Add `GOOGLE_MAPS_API_KEY` as a repo secret to enable the WeatherNext 3 A/B (and 
 natgas/           Python package (EIA storage)
 kalshi_wx/        Python package (Kalshi weather vs WeatherNext 3)
 kalshi/           TypeScript Kalshi client (demo orders; not on the live path yet)
+weather_bot/      Polymarket + Kalshi trading bot (separate FastAPI + React app)
 dashboard/        Nat-gas Vercel root
 dashboard/kalshi/ Kalshi weather dashboard (served at /kalshi/)
+dashboard/bot/    Trading bot React dashboard (served at /bot/)
 data/raw/         Versioned Parquet snapshots (gitignored)
 data/interim/     Models, backtest outputs
 logs/predictions/ Nat-gas JSON prediction log

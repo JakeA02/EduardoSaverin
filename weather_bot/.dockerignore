@@ -1,0 +1,14 @@
+.venv/
+frontend/
+node_modules/
+__pycache__/
+*.py[cod]
+*.db
+.env
+.git/
+*.md
+railway.json
+Procfile
+serve.sh
+build-dashboard.sh
+fly-deploy.sh

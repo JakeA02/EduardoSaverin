@@ -80,6 +80,7 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
   <nav class="site-nav">
     <a class="active" href="./">Storage</a>
     <a href="./kalshi/">Weather markets</a>
+    <a href="./bot/">Trading bot</a>
   </nav>
   <header>
     <h1>US natural gas storage forecast</h1>

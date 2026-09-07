@@ -14,3 +14,7 @@ data/warehouse.duckdb.wal
 .vercel/
 .vercel
 rsa.txt
+weather_bot/.venv/
+weather_bot/tradingbot.db
+weather_bot/frontend/node_modules/
+weather_bot/frontend/dist/
