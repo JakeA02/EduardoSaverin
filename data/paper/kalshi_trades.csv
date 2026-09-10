@@ -161,3 +161,5 @@ opened_ts,settled_ts,status,strategy,ticker,event_ticker,kind,city,target_date,s
 2026-09-10T17:48:38Z,,open,near,KXHIGHTSFO-26SEP11-T70,KXHIGHTSFO-26SEP11,high,SFO,2026-09-11,yes,1,0.7475,0.1,0.085,0.6412,0.0063,,,,2026-09-12T08:00:00Z,paper · near · no live order
 2026-09-10T17:48:38Z,,open,near,KXHIGHTDAL-26SEP11-T96,KXHIGHTDAL-26SEP11,high,DAL,2026-09-11,yes,1,0.7331,0.27,0.265,0.4493,0.0138,,,,2026-09-12T08:00:00Z,paper · near · no live order
 2026-09-10T18:48:04Z,,open,near,KXRAIN-26SEP11-TTN,KXRAIN-26SEP11,rain,TTN,2026-09-11,yes,1,0.66,0.25,0.215,0.3969,0.0131,,,,2026-09-12T08:00:00Z,paper · near · no live order
+2026-09-10T22:44:55Z,,open,near,KXHIGHTBOS-26SEP11-B78.5,KXHIGHTBOS-26SEP11,high,BOS,2026-09-11,no,1,0.1119,0.48,0.525,0.3906,0.0175,,,,2026-09-12T08:00:00Z,paper · near · no live order
+2026-09-10T22:44:55Z,,open,near,KXRAIN-26SEP11-SATX,KXRAIN-26SEP11,rain,SAT,2026-09-11,yes,1,0.4544,0.06,0.055,0.3904,0.0039,,,,2026-09-12T08:00:00Z,paper · near · no live order
