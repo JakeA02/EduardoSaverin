@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-09-12 22:28 UTC",
+  "generated_at": "2026-09-13 13:25 UTC",
   "latest": {
     "week_ending": "2026-09-11",
-    "predicted": 35.734996605247424,
-    "predicted_wn3": 35.734996605247424,
+    "predicted": 43.77891358914834,
+    "predicted_wn3": 43.77891358914834,
     "consensus": null,
     "actual": null,
     "source": null,
     "model_version": "baseline-ols-v0.2-calibrated",
-    "nwp_source": "weathernext3",
+    "nwp_source": "cpc-ndfd",
     "model_minus_consensus": null
   },
   "next_week": {
@@ -85,13 +85,13 @@
     },
     {
       "week_ending": "2026-09-11",
-      "predicted": 35.734996605247424,
-      "predicted_wn3": 35.734996605247424,
+      "predicted": 43.77891358914834,
+      "predicted_wn3": 43.77891358914834,
       "consensus": null,
       "actual": null,
       "source": null,
       "model_version": "baseline-ols-v0.2-calibrated",
-      "nwp_source": "weathernext3"
+      "nwp_source": "cpc-ndfd"
     },
     {
       "week_ending": "2026-09-18",
