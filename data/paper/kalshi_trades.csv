@@ -311,3 +311,4 @@ opened_ts,settled_ts,status,strategy,ticker,event_ticker,kind,city,target_date,s
 2026-09-18T17:48:43Z,,open,near,KXHIGHTPHX-26SEP19-B103.5,KXHIGHTPHX-26SEP19,high,PHX,2026-09-19,no,1,0.1007,0.42,0.595,0.4622,0.0171,,,,2026-09-20T08:00:00Z,paper · near · no live order
 2026-09-18T17:48:43Z,,open,near,KXHIGHTOKC-26SEP19-B98.5,KXHIGHTOKC-26SEP19,high,OKC,2026-09-19,no,1,0.1105,0.46,0.545,0.4121,0.0174,,,,2026-09-20T08:00:00Z,paper · near · no live order
 2026-09-18T17:48:43Z,,open,near,KXHIGHCHI-26SEP19-T72,KXHIGHCHI-26SEP19,high,CHI,2026-09-19,yes,1,0.546,0.17,0.165,0.3661,0.0099,,,,2026-09-20T08:00:00Z,paper · near · no live order
+2026-09-18T22:46:25Z,,open,near,KXHIGHTATL-26SEP19-T92,KXHIGHTATL-26SEP19,high,ATL,2026-09-19,yes,1,0.7272,0.18,0.175,0.5369,0.0103,,,,2026-09-20T08:00:00Z,paper · near · no live order
