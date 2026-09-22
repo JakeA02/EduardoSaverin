@@ -378,3 +378,4 @@ opened_ts,settled_ts,status,strategy,ticker,event_ticker,kind,city,target_date,s
 2026-09-22T18:14:15Z,,open,near,KXRAIN-26SEP23-SATX,KXRAIN-26SEP23,rain,SAT,2026-09-23,yes,1,0.6854,0.14,0.11,0.537,0.0084,,,,2026-09-24T08:00:00Z,paper · near · no live order
 2026-09-22T18:14:15Z,,open,near,KXHIGHTPHX-26SEP23-B97.5,KXHIGHTPHX-26SEP23,high,PHX,2026-09-23,no,1,0.028,0.52,0.485,0.4345,0.0175,,,,2026-09-24T08:00:00Z,paper · near · no live order
 2026-09-22T19:22:44Z,,open,near,KXHIGHTHOU-26SEP23-B95.5,KXHIGHTHOU-26SEP23,high,HOU,2026-09-23,no,1,0.1628,0.41,0.595,0.4103,0.0169,,,,2026-09-24T08:00:00Z,paper · near · no live order
+2026-09-22T23:11:42Z,,open,far,KXRAINWKND-26SEP26-SFO,KXRAINWKND-26SEP26,rain_weekend,SFO,2026-09-26,yes,1,0.6799,0.13,0.125,0.542,0.0079,,,,2026-09-28T08:00:00Z,paper · far · no live order
