@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-09-23 07:54 UTC",
+  "generated_at": "2026-09-23 13:48 UTC",
   "latest": {
     "week_ending": "2026-09-18",
-    "predicted": 56.61781324975845,
-    "predicted_wn3": 56.61781324975845,
-    "consensus": null,
+    "predicted": 56.61781324975852,
+    "predicted_wn3": 56.61781324975852,
+    "consensus": 50.0,
     "actual": null,
-    "source": null,
+    "source": "tradingeconomics",
     "model_version": "baseline-ols-v0.2-calibrated",
     "nwp_source": "cpc-ndfd",
-    "model_minus_consensus": null
+    "model_minus_consensus": 6.61781324975852
   },
   "next_week": {
     "week_ending": "2026-09-25",
@@ -95,11 +95,11 @@
     },
     {
       "week_ending": "2026-09-18",
-      "predicted": 56.61781324975845,
-      "predicted_wn3": 56.61781324975845,
-      "consensus": null,
+      "predicted": 56.61781324975852,
+      "predicted_wn3": 56.61781324975852,
+      "consensus": 50.0,
       "actual": null,
-      "source": null,
+      "source": "tradingeconomics",
       "model_version": "baseline-ols-v0.2-calibrated",
       "nwp_source": "cpc-ndfd"
     },
@@ -114,18 +114,23 @@
       "nwp_source": "weathernext3"
     }
   ],
-  "n_consensus_weeks": 6,
+  "n_consensus_weeks": 7,
   "n_predictions": 5,
   "paper": {
     "strategy": "surprise-qg-v0.1",
     "n_settled": 6,
-    "n_open": 0,
+    "n_open": 1,
     "n_skipped": 0,
     "cumulative_pnl_usd": 30.0,
     "win_rate": 0.3333333333333333,
     "reasoning_hit_rate": 0.5,
     "consecutive_losses": 0,
-    "latest_open": null,
+    "latest_open": {
+      "week_ending": "2026-09-18",
+      "side": "short",
+      "n_contracts": 1,
+      "predicted_surprise": 6.61781324975852
+    },
     "trades": [
       {
         "week_ending": "2026-08-07",
@@ -209,6 +214,20 @@
         "pnl_usd": 75.0,
         "reasoning_ok": true,
         "note": "standard long 1 QG on -5.2 Bcf predicted surprise; reasoning held",
+        "source": "live"
+      },
+      {
+        "week_ending": "2026-09-18",
+        "status": "open",
+        "side": "short",
+        "n_contracts": 1,
+        "predicted_surprise": 6.61781324975852,
+        "actual_surprise": null,
+        "entry_price": null,
+        "exit_price": null,
+        "pnl_usd": null,
+        "reasoning_ok": null,
+        "note": "standard short 1 QG on +6.6 Bcf predicted surprise",
         "source": "live"
       }
     ]
