@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-09-23 15:41 UTC",
+  "generated_at": "2026-09-23 18:33 UTC",
   "latest": {
     "week_ending": "2026-09-18",
     "predicted": 56.61781324975845,
     "predicted_wn3": 56.61781324975845,
-    "consensus": 50.0,
+    "consensus": 53.0,
     "actual": null,
     "source": "tradingeconomics",
     "model_version": "baseline-ols-v0.2-calibrated",
     "nwp_source": "cpc-ndfd",
-    "model_minus_consensus": 6.6178132497584485
+    "model_minus_consensus": 3.6178132497584485
   },
   "next_week": {
     "week_ending": "2026-09-25",
@@ -97,7 +97,7 @@
       "week_ending": "2026-09-18",
       "predicted": 56.61781324975845,
       "predicted_wn3": 56.61781324975845,
-      "consensus": 50.0,
+      "consensus": 53.0,
       "actual": null,
       "source": "tradingeconomics",
       "model_version": "baseline-ols-v0.2-calibrated",
@@ -119,18 +119,13 @@
   "paper": {
     "strategy": "surprise-qg-v0.1",
     "n_settled": 6,
-    "n_open": 1,
-    "n_skipped": 0,
+    "n_open": 0,
+    "n_skipped": 1,
     "cumulative_pnl_usd": 30.0,
     "win_rate": 0.3333333333333333,
     "reasoning_hit_rate": 0.5,
     "consecutive_losses": 0,
-    "latest_open": {
-      "week_ending": "2026-09-18",
-      "side": "short",
-      "n_contracts": 1,
-      "predicted_surprise": 6.6178132497584485
-    },
+    "latest_open": null,
     "trades": [
       {
         "week_ending": "2026-08-07",
@@ -218,16 +213,16 @@
       },
       {
         "week_ending": "2026-09-18",
-        "status": "open",
-        "side": "short",
-        "n_contracts": 1,
-        "predicted_surprise": 6.6178132497584485,
+        "status": "skipped",
+        "side": "flat",
+        "n_contracts": 0,
+        "predicted_surprise": 3.617813249758449,
         "actual_surprise": null,
         "entry_price": null,
         "exit_price": null,
         "pnl_usd": null,
         "reasoning_ok": null,
-        "note": "standard short 1 QG on +6.6 Bcf predicted surprise",
+        "note": "|surprise| 3.6 Bcf \u2264 5 deadband",
         "source": "live"
       }
     ]
