@@ -1,0 +1,28 @@
+{
+  "release_name": "Weekly Natural Gas Storage Report",
+  "release_date": "2026-Sep-24 00:00:00",
+  "current_week": "2026-09-18",
+  "week_ago": "2026-09-11",
+  "year_ago": "2025-09-18",
+  "series": [
+    {
+      "series_id": "png.nw2_epg0_swo_r48_bcf.w",
+      "name": "total lower 48 states",
+      "calculated": {"net_change": 53, "implied_flow": 53},
+      "data": [
+        ["2026-09-18", 3351],
+        ["2026-09-11", 3298],
+        ["2025-09-18", 3497]
+      ]
+    },
+    {
+      "series_id": "png.nw2_epg0_swo_r31_bcf.w",
+      "name": "east region",
+      "calculated": {"net_change": 20},
+      "data": [
+        ["2026-09-18", 815],
+        ["2026-09-11", 795]
+      ]
+    }
+  ]
+}

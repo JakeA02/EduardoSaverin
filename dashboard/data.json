@@ -1,17 +1,6 @@
 {
-  "generated_at": "2026-09-24 13:43 UTC",
+  "generated_at": "2026-09-24 15:58 UTC",
   "latest": {
-    "week_ending": "2026-09-18",
-    "predicted": 56.61781324975845,
-    "predicted_wn3": 56.61781324975845,
-    "consensus": 53.0,
-    "actual": null,
-    "source": "tradingeconomics",
-    "model_version": "baseline-ols-v0.2-calibrated",
-    "nwp_source": "cpc-ndfd",
-    "model_minus_consensus": 3.6178132497584485
-  },
-  "next_week": {
     "week_ending": "2026-09-25",
     "predicted": 67.1507325722437,
     "predicted_wn3": 67.1507325722437,
@@ -22,15 +11,21 @@
     "nwp_source": "weathernext3",
     "model_minus_consensus": null
   },
+  "next_week": {
+    "week_ending": "2026-10-02",
+    "predicted": null,
+    "nwp_source": null,
+    "model_minus_consensus": null
+  },
   "gate": {
-    "n_weeks": 3,
-    "model_mae": 7.223515848785195,
-    "consensus_mae": 5.0,
+    "n_weeks": 4,
+    "model_mae": 6.3220901990285086,
+    "consensus_mae": 3.75,
     "rolling_26_model_mae": null,
     "rolling_26_consensus_mae": null,
-    "surprise_hit_rate": 0.6666666666666666,
+    "surprise_hit_rate": 0.5,
     "gate_pass": null,
-    "gate_reason": "Need 26 overlapping weeks for the rolling gate; have 3."
+    "gate_reason": "Need 26 overlapping weeks for the rolling gate; have 4."
   },
   "series": [
     {
@@ -98,7 +93,7 @@
       "predicted": 56.61781324975845,
       "predicted_wn3": 56.61781324975845,
       "consensus": 53.0,
-      "actual": null,
+      "actual": 53.0,
       "source": "tradingeconomics",
       "model_version": "baseline-ols-v0.2-calibrated",
       "nwp_source": "cpc-ndfd"

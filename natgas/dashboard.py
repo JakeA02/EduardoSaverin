@@ -124,9 +124,12 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
       Consensus is logged independently of the model and never used as a feature.
       Street surveys (Reuters/NGI) are paywalled; the automated series is the
       Trading Economics economist survey, ingested on GitHub Actions.
-      The gate requires 26 overlapping weeks with rolling MAE below consensus
-      and surprise-direction hit rate above 50%. Paper trading is a QG overlay
-      on predicted surprise versus consensus; it does not wait for the gate.
+      EIA actuals overlay the official Thursday 10:30 ET WNGSR print
+      (<code>ir.eia.gov/ngs/wngsr.json</code>) so a lagging Open Data API
+      cannot leave the latest week blank. The gate requires 26 overlapping
+      weeks with rolling MAE below consensus and surprise-direction hit rate
+      above 50%. Paper trading is a QG overlay on predicted surprise versus
+      consensus; it does not wait for the gate.
       WeatherNext 3 is an A/B forecast source (purple) and does not drive paper
       trades. Next-week predictions require 7 complete forecast days — Maps
       Weather API is 10 days, so week+1 is usually available from Wednesday;
@@ -229,23 +232,10 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
 
 
 def load_actuals() -> pd.DataFrame:
-    """EIA weekly storage change if a local snapshot exists."""
-    try:
-        from natgas.ingest.eia import load_latest_vintage
+    """EIA weekly storage change from vintage, tracked CSV, or live WNGSR."""
+    from natgas.ingest.eia import load_actuals as load_eia_actuals
 
-        eia = load_latest_vintage()
-        eia["week_ending"] = pd.to_datetime(eia["week_ending"]).dt.date
-        return eia[["week_ending", "storage_change_bcf"]].dropna()
-    except FileNotFoundError:
-        pass
-    try:
-        from natgas.features.balance import load_panel
-
-        panel = load_panel()
-        panel["week_ending"] = pd.to_datetime(panel["week_ending"]).dt.date
-        return panel[["week_ending", "storage_change_bcf"]].dropna()
-    except (FileNotFoundError, OSError):
-        return pd.DataFrame(columns=["week_ending", "storage_change_bcf"])
+    return load_eia_actuals()
 
 
 def build_payload() -> dict:

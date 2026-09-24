@@ -129,22 +129,9 @@ def _empty_row(week: date, signal: TradeSignal, source: str, now: str) -> dict:
 
 
 def _load_actuals() -> pd.DataFrame:
-    try:
-        from natgas.ingest.eia import load_latest_vintage
+    from natgas.ingest.eia import load_actuals
 
-        eia = load_latest_vintage()
-        eia["week_ending"] = pd.to_datetime(eia["week_ending"]).dt.date
-        return eia[["week_ending", "storage_change_bcf"]].dropna()
-    except FileNotFoundError:
-        pass
-    try:
-        from natgas.features.balance import load_panel
-
-        panel = load_panel()
-        panel["week_ending"] = pd.to_datetime(panel["week_ending"]).dt.date
-        return panel[["week_ending", "storage_change_bcf"]].dropna()
-    except (FileNotFoundError, OSError):
-        return pd.DataFrame(columns=["week_ending", "storage_change_bcf"])
+    return load_actuals()
 
 
 def _is_frozen(week: date, now: datetime) -> bool:

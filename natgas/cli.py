@@ -30,7 +30,15 @@ def ingest_eia_cmd(start: str = "2010-01-01") -> None:
     from natgas.ingest.eia import ingest
 
     df = ingest(start=start)
-    console.print(f"[green]EIA storage:[/green] {len(df)} weeks -> {df['week_ending'].min()} .. {df['week_ending'].max()}")
+    latest = df.dropna(subset=["storage_change_bcf"]).tail(1)
+    extra = ""
+    if not latest.empty:
+        row = latest.iloc[0]
+        extra = f" · last {row['week_ending']} {row['storage_change_bcf']:+.1f} Bcf"
+    console.print(
+        f"[green]EIA storage:[/green] {len(df)} weeks -> "
+        f"{df['week_ending'].min()} .. {df['week_ending'].max()}{extra}"
+    )
 
 
 @ingest_app.command("cpc")
