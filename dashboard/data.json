@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-24 15:58 UTC",
+  "generated_at": "2026-09-24 16:02 UTC",
   "latest": {
     "week_ending": "2026-09-25",
     "predicted": 67.1507325722437,
@@ -13,8 +13,13 @@
   },
   "next_week": {
     "week_ending": "2026-10-02",
-    "predicted": null,
-    "nwp_source": null,
+    "predicted": 89.6836116158623,
+    "predicted_wn3": 89.6836116158623,
+    "consensus": null,
+    "actual": null,
+    "source": null,
+    "model_version": "baseline-ols-v0.2-calibrated",
+    "nwp_source": "weathernext3",
     "model_minus_consensus": null
   },
   "gate": {
@@ -107,17 +112,27 @@
       "source": null,
       "model_version": "baseline-ols-v0.2-calibrated",
       "nwp_source": "weathernext3"
+    },
+    {
+      "week_ending": "2026-10-02",
+      "predicted": 89.6836116158623,
+      "predicted_wn3": 89.6836116158623,
+      "consensus": null,
+      "actual": null,
+      "source": null,
+      "model_version": "baseline-ols-v0.2-calibrated",
+      "nwp_source": "weathernext3"
     }
   ],
   "n_consensus_weeks": 7,
-  "n_predictions": 5,
+  "n_predictions": 6,
   "paper": {
     "strategy": "surprise-qg-v0.1",
-    "n_settled": 6,
+    "n_settled": 7,
     "n_open": 0,
-    "n_skipped": 1,
+    "n_skipped": 0,
     "cumulative_pnl_usd": 30.0,
-    "win_rate": 0.3333333333333333,
+    "win_rate": 0.2857142857142857,
     "reasoning_hit_rate": 0.5,
     "consecutive_losses": 0,
     "latest_open": null,
@@ -208,16 +223,16 @@
       },
       {
         "week_ending": "2026-09-18",
-        "status": "skipped",
+        "status": "settled",
         "side": "flat",
         "n_contracts": 0,
         "predicted_surprise": 3.617813249758449,
-        "actual_surprise": null,
-        "entry_price": null,
-        "exit_price": null,
-        "pnl_usd": null,
+        "actual_surprise": 0.0,
+        "entry_price": 3.0230000019073486,
+        "exit_price": 3.328000068664551,
+        "pnl_usd": 0.0,
         "reasoning_ok": null,
-        "note": "|surprise| 3.6 Bcf \u2264 5 deadband",
+        "note": "|surprise| 3.6 Bcf \u2264 5 deadband; flat, $0",
         "source": "live"
       }
     ]
