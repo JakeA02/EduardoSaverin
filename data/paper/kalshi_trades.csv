@@ -462,3 +462,4 @@ opened_ts,settled_ts,status,strategy,ticker,event_ticker,kind,city,target_date,s
 2026-09-27T18:37:23Z,,open,near,KXHIGHDEN-26SEP28-T73,KXHIGHDEN-26SEP28,high,DEN,2026-09-28,yes,1,0.8849,0.33,0.325,0.5395,0.0155,,,,2026-09-29T08:00:00Z,paper · near · no live order
 2026-09-27T18:37:23Z,,open,near,KXHIGHAUS-26SEP28-B97.5,KXHIGHAUS-26SEP28,high,AUS,2026-09-28,no,1,0.0535,0.47,0.535,0.459,0.0174,,,,2026-09-29T08:00:00Z,paper · near · no live order
 2026-09-27T18:37:23Z,,open,near,KXHIGHLAX-26SEP28-T76,KXHIGHLAX-26SEP28,high,LAX,2026-09-28,yes,1,0.5213,0.09,0.085,0.4255,0.0057,,,,2026-09-29T08:00:00Z,paper · near · no live order
+2026-09-27T23:14:39Z,,open,near,KXRAIN-26SEP28-DAL,KXRAIN-26SEP28,rain,DAL,2026-09-28,yes,1,0.8885,0.46,0.455,0.4111,0.0174,,,,2026-09-29T08:00:00Z,paper · near · no live order
