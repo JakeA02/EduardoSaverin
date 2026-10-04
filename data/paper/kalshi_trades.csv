@@ -551,3 +551,4 @@ opened_ts,settled_ts,status,strategy,ticker,event_ticker,kind,city,target_date,s
 2026-10-04T18:18:51Z,,open,near,KXHIGHLAX-26OCT05-T97,KXHIGHLAX-26OCT05,high,LAX,2026-10-05,yes,1,0.969,0.65,0.645,0.3031,0.0159,,,,2026-10-06T08:00:00Z,paper · near · no live order
 2026-10-04T18:18:51Z,,open,near,KXHIGHTBOS-26OCT05-B70.5,KXHIGHTBOS-26OCT05,high,BOS,2026-10-05,no,1,0.1611,0.53,0.48,0.2915,0.0174,,,,2026-10-06T08:00:00Z,paper · near · no live order
 2026-10-04T18:18:51Z,,open,near,KXHIGHTDAL-26OCT05-B84.5,KXHIGHTDAL-26OCT05,high,DAL,2026-10-05,no,1,0.1645,0.54,0.465,0.2781,0.0174,,,,2026-10-06T08:00:00Z,paper · near · no live order
+2026-10-04T23:27:30Z,,open,near,KXHIGHTATL-26OCT05-T77,KXHIGHTATL-26OCT05,high,ATL,2026-10-05,yes,1,0.7183,0.26,0.255,0.4448,0.0135,,,,2026-10-06T08:00:00Z,paper · near · no live order
