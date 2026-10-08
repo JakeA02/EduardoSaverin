@@ -602,3 +602,4 @@ opened_ts,settled_ts,status,strategy,ticker,event_ticker,kind,city,target_date,s
 2026-10-07T20:09:18Z,,open,near,KXRAIN-26OCT08-NOLA,KXRAIN-26OCT08,rain,NOLA,2026-10-08,yes,1,0.4864,0.06,0.055,0.4225,0.0039,,,,2026-10-09T08:00:00Z,paper · near · no live order
 2026-10-07T20:09:18Z,,open,near,KXHIGHAUS-26OCT08-B92.5,KXHIGHAUS-26OCT08,high,AUS,2026-10-08,no,1,0.1149,0.52,0.485,0.3477,0.0175,,,,2026-10-09T08:00:00Z,paper · near · no live order
 2026-10-07T20:09:18Z,,open,near,KXRAIN-26OCT08-BOS,KXRAIN-26OCT08,rain,BOS,2026-10-08,yes,1,0.3899,0.08,0.075,0.3048,0.0052,,,,2026-10-09T08:00:00Z,paper · near · no live order
+2026-10-08T00:20:19Z,,open,far,KXRAINWKND-26OCT10-SFO,KXRAINWKND-26OCT10,rain_weekend,SFO,2026-10-10,yes,1,0.5664,0.28,0.145,0.2723,0.0141,,,,2026-10-12T08:00:00Z,paper · far · no live order
