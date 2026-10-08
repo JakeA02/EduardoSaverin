@@ -603,3 +603,6 @@ opened_ts,settled_ts,status,strategy,ticker,event_ticker,kind,city,target_date,s
 2026-10-07T20:09:18Z,,open,near,KXHIGHAUS-26OCT08-B92.5,KXHIGHAUS-26OCT08,high,AUS,2026-10-08,no,1,0.1149,0.52,0.485,0.3477,0.0175,,,,2026-10-09T08:00:00Z,paper · near · no live order
 2026-10-07T20:09:18Z,,open,near,KXRAIN-26OCT08-BOS,KXRAIN-26OCT08,rain,BOS,2026-10-08,yes,1,0.3899,0.08,0.075,0.3048,0.0052,,,,2026-10-09T08:00:00Z,paper · near · no live order
 2026-10-08T00:20:19Z,,open,far,KXRAINWKND-26OCT10-SFO,KXRAINWKND-26OCT10,rain_weekend,SFO,2026-10-10,yes,1,0.5664,0.28,0.145,0.2723,0.0141,,,,2026-10-12T08:00:00Z,paper · far · no live order
+2026-10-08T09:19:30Z,,open,near,KXRAIN-26OCT09-PHX,KXRAIN-26OCT09,rain,PHX,2026-10-09,yes,1,0.4013,0.1,0.055,0.295,0.0063,,,,2026-10-10T08:00:00Z,paper · near · no live order
+2026-10-08T09:19:30Z,,open,near,KXRAIN-26OCT09-HOU,KXRAIN-26OCT09,rain,HOU,2026-10-09,yes,1,0.3888,0.1,0.075,0.2825,0.0063,,,,2026-10-10T08:00:00Z,paper · near · no live order
+2026-10-08T09:19:30Z,,open,near,KXRAIN-26OCT09-MIA,KXRAIN-26OCT09,rain,MIA,2026-10-09,yes,1,0.7287,0.66,0.56,0.053,0.0157,,,,2026-10-10T08:00:00Z,paper · near · no live order
