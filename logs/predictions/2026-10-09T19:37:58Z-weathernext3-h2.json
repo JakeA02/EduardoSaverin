@@ -1,0 +1,15 @@
+{
+  "ts_utc": "2026-10-09T19:37:58Z",
+  "target_week_ending": "2026-10-16",
+  "model_version": "baseline-ols-v0.2-calibrated",
+  "nwp_cycle": "2026-10-09",
+  "nwp_source": "weathernext3",
+  "horizon_weeks": 2,
+  "predicted_change_bcf": 72.85143088161894,
+  "prediction_interval_90": [
+    41.128747789889495,
+    104.49610121307082
+  ],
+  "consensus_median": null,
+  "actual": null
+}
