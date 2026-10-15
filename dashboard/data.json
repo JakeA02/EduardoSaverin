@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-10-15 13:40 UTC",
+  "generated_at": "2026-10-15 18:33 UTC",
   "latest": {
-    "week_ending": "2026-10-09",
-    "predicted": 84.91931522285046,
-    "predicted_wn3": 84.91931522285046,
-    "consensus": 76.0,
-    "actual": null,
-    "source": "tradingeconomics",
-    "model_version": "baseline-ols-v0.2-calibrated",
-    "nwp_source": "cpc-ndfd",
-    "model_minus_consensus": 8.919315222850457
-  },
-  "next_week": {
     "week_ending": "2026-10-16",
     "predicted": 67.95430195906503,
     "predicted_wn3": 67.95430195906503,
+    "consensus": null,
+    "actual": null,
+    "source": null,
+    "model_version": "baseline-ols-v0.2-calibrated",
+    "nwp_source": "weathernext3",
+    "model_minus_consensus": null
+  },
+  "next_week": {
+    "week_ending": "2026-10-23",
+    "predicted": 99.61644109357398,
+    "predicted_wn3": 99.61644109357398,
     "consensus": null,
     "actual": null,
     "source": null,
@@ -142,10 +142,20 @@
       "source": null,
       "model_version": "baseline-ols-v0.2-calibrated",
       "nwp_source": "weathernext3"
+    },
+    {
+      "week_ending": "2026-10-23",
+      "predicted": 99.61644109357398,
+      "predicted_wn3": 99.61644109357398,
+      "consensus": null,
+      "actual": null,
+      "source": null,
+      "model_version": "baseline-ols-v0.2-calibrated",
+      "nwp_source": "weathernext3"
     }
   ],
   "n_consensus_weeks": 10,
-  "n_predictions": 8,
+  "n_predictions": 9,
   "paper": {
     "strategy": "surprise-qg-v0.1",
     "n_settled": 9,
