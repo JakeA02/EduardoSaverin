@@ -703,3 +703,4 @@ opened_ts,settled_ts,status,strategy,ticker,event_ticker,kind,city,target_date,s
 2026-10-14T23:23:48Z,,open,near,KXHIGHTSFO-26OCT15-B84.5,KXHIGHTSFO-26OCT15,high,SFO,2026-10-15,no,1,0.01,0.63,0.375,0.3437,0.0163,,,,2026-10-16T08:00:00Z,paper · near · no live order
 2026-10-14T23:23:48Z,,open,far,KXRAINWKND-26OCT17-ATL,KXRAINWKND-26OCT17,rain_weekend,ATL,2026-10-17,yes,1,0.543,0.07,0.065,0.4685,0.0046,,,,2026-10-19T05:00:00Z,paper · far · no live order
 2026-10-14T23:23:48Z,,open,far,KXRAINWKND-26OCT17-SEA,KXRAINWKND-26OCT17,rain_weekend,SEA,2026-10-17,yes,1,0.8123,0.59,0.58,0.2054,0.0169,,,,2026-10-19T08:00:00Z,paper · far · no live order
+2026-10-15T07:41:18Z,,open,far,KXRAINWKND-26OCT17-DEN,KXRAINWKND-26OCT17,rain_weekend,DEN,2026-10-17,yes,1,0.6083,0.13,0.085,0.4704,0.0079,,,,2026-10-19T07:00:00Z,paper · far · no live order
