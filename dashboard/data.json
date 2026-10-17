@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-16 18:19 UTC",
+  "generated_at": "2026-10-17 12:23 UTC",
   "latest": {
     "week_ending": "2026-10-16",
     "predicted": 67.95430195906503,
@@ -13,8 +13,8 @@
   },
   "next_week": {
     "week_ending": "2026-10-23",
-    "predicted": 93.40438810001122,
-    "predicted_wn3": 93.40438810001122,
+    "predicted": 99.94224601763653,
+    "predicted_wn3": 99.94224601763653,
     "consensus": null,
     "actual": null,
     "source": null,
@@ -145,8 +145,8 @@
     },
     {
       "week_ending": "2026-10-23",
-      "predicted": 93.40438810001122,
-      "predicted_wn3": 93.40438810001122,
+      "predicted": 99.94224601763653,
+      "predicted_wn3": 99.94224601763653,
       "consensus": null,
       "actual": null,
       "source": null,
