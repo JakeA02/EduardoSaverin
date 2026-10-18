@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import logging
+import warnings
 from datetime import UTC, date, datetime
 from pathlib import Path
 
 import pandas as pd
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from natgas.config import (
     EIA_ACTUALS_CSV,
@@ -42,6 +46,40 @@ WNGSR_SERIES = {
 }
 ACTUALS_COLUMNS = ["week_ending", "storage_change_bcf", "total_bcf", "source"]
 
+# EIA Open Data can be slow on large weekly pulls; CI failures were 60s read timeouts.
+_EIA_CONNECT_TIMEOUT_S = 30.0
+_EIA_READ_TIMEOUT_S = 180.0
+_EIA_HTTP: requests.Session | None = None
+log = logging.getLogger(__name__)
+
+
+def _eia_http() -> requests.Session:
+    global _EIA_HTTP
+    if _EIA_HTTP is None:
+        retry = Retry(
+            total=5,
+            connect=5,
+            read=5,
+            status=5,
+            backoff_factor=2,
+            status_forcelist=(429, 500, 502, 503, 504),
+            allowed_methods=("GET",),
+        )
+        session = requests.Session()
+        session.mount("https://", HTTPAdapter(max_retries=retry))
+        _EIA_HTTP = session
+    return _EIA_HTTP
+
+
+def _eia_get(url: str, *, params: dict[str, str | int] | None = None) -> requests.Response:
+    resp = _eia_http().get(
+        url,
+        params=params,
+        timeout=(_EIA_CONNECT_TIMEOUT_S, _EIA_READ_TIMEOUT_S),
+    )
+    resp.raise_for_status()
+    return resp
+
 
 def _fetch_series(series_code: str, start: str | None = None) -> pd.DataFrame:
     if not EIA_API_KEY:
@@ -66,9 +104,7 @@ def _fetch_series(series_code: str, start: str | None = None) -> pd.DataFrame:
             params["start"] = start
 
         url = f"{EIA_BASE_URL}/natural-gas/stor/wkly/data/"
-        resp = requests.get(url, params=params, timeout=60)
-        resp.raise_for_status()
-        payload = resp.json()
+        payload = _eia_get(url, params=params).json()
 
         batch = payload.get("response", {}).get("data", [])
         if not batch:
@@ -155,7 +191,7 @@ def parse_wngsr(payload: dict) -> pd.DataFrame:
 def fetch_wngsr() -> pd.DataFrame:
     """Official Thursday print. Empty frame if the IR feed is unreachable."""
     try:
-        resp = requests.get(WNGSR_JSON_URL, timeout=30)
+        resp = _eia_http().get(WNGSR_JSON_URL, timeout=(10.0, 45.0))
         resp.raise_for_status()
         return parse_wngsr(resp.json())
     except (OSError, TypeError, ValueError, requests.RequestException):
@@ -262,8 +298,21 @@ def _backfill_actuals(storage: pd.DataFrame) -> None:
 
 
 def ingest(start: str = "2010-01-01") -> pd.DataFrame:
-    df = fetch_storage(start=start)
     wngsr = fetch_wngsr()
+    try:
+        df = fetch_storage(start=start)
+    except (requests.RequestException, RuntimeError) as exc:
+        try:
+            df = load_latest_vintage()
+        except FileNotFoundError:
+            raise RuntimeError(
+                "EIA Open Data request failed and no local vintage snapshot exists."
+            ) from exc
+        warnings.warn(
+            f"EIA Open Data unavailable ({exc}); using latest on-disk vintage.",
+            stacklevel=2,
+        )
+        log.warning("EIA API failed (%s); using cached vintage", exc)
     df = merge_wngsr(df, wngsr)
     save_vintage_snapshot(df)
     upsert_tracked_actuals(df, source="wngsr" if not wngsr.empty else "eia-api")
