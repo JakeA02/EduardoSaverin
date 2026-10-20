@@ -776,3 +776,4 @@ opened_ts,settled_ts,status,strategy,ticker,event_ticker,kind,city,target_date,s
 2026-10-20T18:37:46Z,,open,near,KXRAIN-26OCT21-DEN,KXRAIN-26OCT21,rain,DEN,2026-10-21,yes,1,0.4434,0.07,0.06,0.3688,0.0046,,,,2026-10-22T08:00:00Z,paper · near · no live order
 2026-10-20T18:37:46Z,,open,near,KXHIGHTPHX-26OCT21-B90.5,KXHIGHTPHX-26OCT21,high,PHX,2026-10-21,no,1,0.01,0.62,0.385,0.3535,0.0165,,,,2026-10-22T08:00:00Z,paper · near · no live order
 2026-10-20T18:37:46Z,,open,near,KXHIGHTNOLA-26OCT21-T77,KXHIGHTNOLA-26OCT21,high,NOLA,2026-10-21,yes,1,0.4121,0.08,0.075,0.3269,0.0052,,,,2026-10-22T08:00:00Z,paper · near · no live order
+2026-10-20T23:23:00Z,,open,near,KXHIGHTDC-26OCT21-B68.5,KXHIGHTDC-26OCT21,high,DC,2026-10-21,no,1,0.3106,0.33,0.675,0.3439,0.0155,,,,2026-10-22T08:00:00Z,paper · near · no live order
