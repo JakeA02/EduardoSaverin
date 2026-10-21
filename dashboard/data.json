@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-10-21 08:01 UTC",
+  "generated_at": "2026-10-21 14:03 UTC",
   "latest": {
     "week_ending": "2026-10-16",
     "predicted": 72.49696694193011,
     "predicted_wn3": 72.49696694193011,
-    "consensus": null,
+    "consensus": 83.0,
     "actual": null,
-    "source": null,
+    "source": "tradingeconomics",
     "model_version": "baseline-ols-v0.2-calibrated",
     "nwp_source": "cpc-ndfd",
-    "model_minus_consensus": null
+    "model_minus_consensus": -10.503033058069889
   },
   "next_week": {
     "week_ending": "2026-10-23",
@@ -137,9 +137,9 @@
       "week_ending": "2026-10-16",
       "predicted": 72.49696694193011,
       "predicted_wn3": 72.49696694193011,
-      "consensus": null,
+      "consensus": 83.0,
       "actual": null,
-      "source": null,
+      "source": "tradingeconomics",
       "model_version": "baseline-ols-v0.2-calibrated",
       "nwp_source": "cpc-ndfd"
     },
@@ -154,18 +154,23 @@
       "nwp_source": "weathernext3"
     }
   ],
-  "n_consensus_weeks": 10,
+  "n_consensus_weeks": 11,
   "n_predictions": 9,
   "paper": {
     "strategy": "surprise-qg-v0.1",
     "n_settled": 10,
-    "n_open": 0,
+    "n_open": 1,
     "n_skipped": 0,
     "cumulative_pnl_usd": 520.0,
     "win_rate": 0.5,
     "reasoning_hit_rate": 0.5,
     "consecutive_losses": 0,
-    "latest_open": null,
+    "latest_open": {
+      "week_ending": "2026-10-16",
+      "side": "long",
+      "n_contracts": 1,
+      "predicted_surprise": -10.503033058069889
+    },
     "trades": [
       {
         "week_ending": "2026-08-07",
@@ -305,6 +310,20 @@
         "pnl_usd": 5.0,
         "reasoning_ok": false,
         "note": "standard short 1 QG on +8.9 Bcf predicted surprise; reasoning failed (lucky P&L possible)",
+        "source": "live"
+      },
+      {
+        "week_ending": "2026-10-16",
+        "status": "open",
+        "side": "long",
+        "n_contracts": 1,
+        "predicted_surprise": -10.503033058069889,
+        "actual_surprise": null,
+        "entry_price": null,
+        "exit_price": null,
+        "pnl_usd": null,
+        "reasoning_ok": null,
+        "note": "standard long 1 QG on -10.5 Bcf predicted surprise",
         "source": "live"
       }
     ]
