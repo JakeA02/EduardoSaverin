@@ -1,17 +1,6 @@
 {
-  "generated_at": "2026-10-22 14:01 UTC",
+  "generated_at": "2026-10-22 18:43 UTC",
   "latest": {
-    "week_ending": "2026-10-16",
-    "predicted": 72.49696694193005,
-    "predicted_wn3": 72.49696694193005,
-    "consensus": 79.0,
-    "actual": null,
-    "source": "tradingeconomics",
-    "model_version": "baseline-ols-v0.2-calibrated",
-    "nwp_source": "cpc-ndfd",
-    "model_minus_consensus": -6.503033058069946
-  },
-  "next_week": {
     "week_ending": "2026-10-23",
     "predicted": 99.94224601763653,
     "predicted_wn3": 99.94224601763653,
@@ -22,15 +11,26 @@
     "nwp_source": "weathernext3",
     "model_minus_consensus": null
   },
+  "next_week": {
+    "week_ending": "2026-10-30",
+    "predicted": 102.18189715107987,
+    "predicted_wn3": 102.18189715107987,
+    "consensus": null,
+    "actual": null,
+    "source": null,
+    "model_version": "baseline-ols-v0.2-calibrated",
+    "nwp_source": "weathernext3",
+    "model_minus_consensus": null
+  },
   "gate": {
-    "n_weeks": 7,
-    "model_mae": 9.695796875005138,
-    "consensus_mae": 4.285714285714286,
+    "n_weeks": 8,
+    "model_mae": 9.046701397888238,
+    "consensus_mae": 4.0,
     "rolling_26_model_mae": null,
     "rolling_26_consensus_mae": null,
-    "surprise_hit_rate": 0.42857142857142855,
+    "surprise_hit_rate": 0.5,
     "gate_pass": null,
-    "gate_reason": "Need 26 overlapping weeks for the rolling gate; have 7."
+    "gate_reason": "Need 26 overlapping weeks for the rolling gate; have 8."
   },
   "series": [
     {
@@ -138,7 +138,7 @@
       "predicted": 72.49696694193005,
       "predicted_wn3": 72.49696694193005,
       "consensus": 79.0,
-      "actual": null,
+      "actual": 77.0,
       "source": "tradingeconomics",
       "model_version": "baseline-ols-v0.2-calibrated",
       "nwp_source": "cpc-ndfd"
@@ -152,25 +152,30 @@
       "source": null,
       "model_version": "baseline-ols-v0.2-calibrated",
       "nwp_source": "weathernext3"
+    },
+    {
+      "week_ending": "2026-10-30",
+      "predicted": 102.18189715107987,
+      "predicted_wn3": 102.18189715107987,
+      "consensus": null,
+      "actual": null,
+      "source": null,
+      "model_version": "baseline-ols-v0.2-calibrated",
+      "nwp_source": "weathernext3"
     }
   ],
   "n_consensus_weeks": 11,
-  "n_predictions": 9,
+  "n_predictions": 10,
   "paper": {
     "strategy": "surprise-qg-v0.1",
-    "n_settled": 10,
-    "n_open": 1,
+    "n_settled": 11,
+    "n_open": 0,
     "n_skipped": 0,
-    "cumulative_pnl_usd": 520.0,
-    "win_rate": 0.5,
-    "reasoning_hit_rate": 0.5,
+    "cumulative_pnl_usd": 527.5,
+    "win_rate": 0.5454545454545454,
+    "reasoning_hit_rate": 0.5555555555555556,
     "consecutive_losses": 0,
-    "latest_open": {
-      "week_ending": "2026-10-16",
-      "side": "long",
-      "n_contracts": 1,
-      "predicted_surprise": -6.503033058069946
-    },
+    "latest_open": null,
     "trades": [
       {
         "week_ending": "2026-08-07",
@@ -314,16 +319,16 @@
       },
       {
         "week_ending": "2026-10-16",
-        "status": "open",
+        "status": "settled",
         "side": "long",
         "n_contracts": 1,
         "predicted_surprise": -6.503033058069946,
-        "actual_surprise": null,
-        "entry_price": null,
-        "exit_price": null,
-        "pnl_usd": null,
-        "reasoning_ok": null,
-        "note": "standard long 1 QG on -6.5 Bcf predicted surprise",
+        "actual_surprise": -2.0,
+        "entry_price": 2.789999961853028,
+        "exit_price": 2.7950000762939453,
+        "pnl_usd": 7.5,
+        "reasoning_ok": true,
+        "note": "standard long 1 QG on -6.5 Bcf predicted surprise; reasoning held",
         "source": "live"
       }
     ]
