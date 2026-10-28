@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-10-28 17:54 UTC",
+  "generated_at": "2026-10-28 19:46 UTC",
   "latest": {
     "week_ending": "2026-10-23",
-    "predicted": 78.06872538756471,
-    "predicted_wn3": 78.06872538756471,
+    "predicted": 78.06872538756475,
+    "predicted_wn3": 78.06872538756475,
     "consensus": 75.0,
     "actual": null,
     "source": "tradingeconomics",
     "model_version": "baseline-ols-v0.2-calibrated",
     "nwp_source": "cpc-ndfd",
-    "model_minus_consensus": 3.0687253875647116
+    "model_minus_consensus": 3.068725387564754
   },
   "next_week": {
     "week_ending": "2026-10-30",
@@ -145,8 +145,8 @@
     },
     {
       "week_ending": "2026-10-23",
-      "predicted": 78.06872538756471,
-      "predicted_wn3": 78.06872538756471,
+      "predicted": 78.06872538756475,
+      "predicted_wn3": 78.06872538756475,
       "consensus": 75.0,
       "actual": null,
       "source": "tradingeconomics",
@@ -336,7 +336,7 @@
         "status": "skipped",
         "side": "flat",
         "n_contracts": 0,
-        "predicted_surprise": 3.068725387564712,
+        "predicted_surprise": 3.068725387564754,
         "actual_surprise": null,
         "entry_price": null,
         "exit_price": null,
