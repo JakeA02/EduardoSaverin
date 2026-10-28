@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-10-28 08:50 UTC",
+  "generated_at": "2026-10-28 17:54 UTC",
   "latest": {
     "week_ending": "2026-10-23",
-    "predicted": 78.06872538756475,
-    "predicted_wn3": 78.06872538756475,
-    "consensus": null,
+    "predicted": 78.06872538756471,
+    "predicted_wn3": 78.06872538756471,
+    "consensus": 75.0,
     "actual": null,
-    "source": null,
+    "source": "tradingeconomics",
     "model_version": "baseline-ols-v0.2-calibrated",
     "nwp_source": "cpc-ndfd",
-    "model_minus_consensus": null
+    "model_minus_consensus": 3.0687253875647116
   },
   "next_week": {
     "week_ending": "2026-10-30",
@@ -145,11 +145,11 @@
     },
     {
       "week_ending": "2026-10-23",
-      "predicted": 78.06872538756475,
-      "predicted_wn3": 78.06872538756475,
-      "consensus": null,
+      "predicted": 78.06872538756471,
+      "predicted_wn3": 78.06872538756471,
+      "consensus": 75.0,
       "actual": null,
-      "source": null,
+      "source": "tradingeconomics",
       "model_version": "baseline-ols-v0.2-calibrated",
       "nwp_source": "cpc-ndfd"
     },
@@ -164,13 +164,13 @@
       "nwp_source": "weathernext3"
     }
   ],
-  "n_consensus_weeks": 11,
+  "n_consensus_weeks": 12,
   "n_predictions": 10,
   "paper": {
     "strategy": "surprise-qg-v0.1",
     "n_settled": 11,
     "n_open": 0,
-    "n_skipped": 0,
+    "n_skipped": 1,
     "cumulative_pnl_usd": 527.5,
     "win_rate": 0.5454545454545454,
     "reasoning_hit_rate": 0.5555555555555556,
@@ -329,6 +329,20 @@
         "pnl_usd": 7.5,
         "reasoning_ok": true,
         "note": "standard long 1 QG on -6.5 Bcf predicted surprise; reasoning held",
+        "source": "live"
+      },
+      {
+        "week_ending": "2026-10-23",
+        "status": "skipped",
+        "side": "flat",
+        "n_contracts": 0,
+        "predicted_surprise": 3.068725387564712,
+        "actual_surprise": null,
+        "entry_price": null,
+        "exit_price": null,
+        "pnl_usd": null,
+        "reasoning_ok": null,
+        "note": "|surprise| 3.1 Bcf \u2264 5 deadband",
         "source": "live"
       }
     ]
