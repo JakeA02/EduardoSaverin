@@ -956,3 +956,6 @@ opened_ts,settled_ts,status,strategy,ticker,event_ticker,kind,city,target_date,s
 2026-11-02T22:52:10Z,,open,far,KXRAINWKND-26NOV07-DEN,KXRAINWKND-26NOV07,rain_weekend,DEN,2026-11-07,yes,1,0.5652,0.09,0.085,0.4694,0.0057,,,,2026-11-09T07:00:00Z,paper · far · no live order
 2026-11-02T22:52:10Z,,open,far,KXRAINWKND-26NOV07-MIA,KXRAINWKND-26NOV07,rain_weekend,MIA,2026-11-07,yes,1,0.7385,0.28,0.265,0.4444,0.0141,,,,2026-11-09T05:00:00Z,paper · far · no live order
 2026-11-02T22:52:10Z,,open,far,KXRAINWKND-26NOV07-PHX,KXRAINWKND-26NOV07,rain_weekend,PHX,2026-11-07,yes,1,0.4637,0.07,0.065,0.3891,0.0046,,,,2026-11-09T07:00:00Z,paper · far · no live order
+2026-11-03T09:50:57Z,,open,far,KXRAINWKND-26NOV07-AUS,KXRAINWKND-26NOV07,rain_weekend,AUS,2026-11-07,yes,1,0.9893,0.41,0.395,0.5623,0.0169,,,,2026-11-09T06:00:00Z,paper · far · no live order
+2026-11-03T09:50:57Z,,open,far,KXRAINWKND-26NOV07-SATX,KXRAINWKND-26NOV07,rain_weekend,SAT,2026-11-07,yes,1,0.99,0.48,0.465,0.4925,0.0175,,,,2026-11-09T06:00:00Z,paper · far · no live order
+2026-11-03T09:50:57Z,,open,far,KXRAINWKND-26NOV07-ATL,KXRAINWKND-26NOV07,rain_weekend,ATL,2026-11-07,yes,1,0.6344,0.2,0.185,0.4232,0.0112,,,,2026-11-09T05:00:00Z,paper · far · no live order
