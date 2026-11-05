@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-11-04 20:54 UTC",
+  "generated_at": "2026-11-05 09:45 UTC",
   "latest": {
     "week_ending": "2026-10-30",
-    "predicted": 83.74420845464834,
-    "predicted_wn3": 83.74420845464834,
-    "consensus": null,
+    "predicted": 83.74420845464832,
+    "predicted_wn3": 83.74420845464832,
+    "consensus": 81.0,
     "actual": null,
-    "source": null,
+    "source": "tradingeconomics",
     "model_version": "baseline-ols-v0.2-calibrated",
     "nwp_source": "cpc-ndfd",
-    "model_minus_consensus": null
+    "model_minus_consensus": 2.744208454648316
   },
   "next_week": {
     "week_ending": "2026-11-06",
@@ -155,11 +155,11 @@
     },
     {
       "week_ending": "2026-10-30",
-      "predicted": 83.74420845464834,
-      "predicted_wn3": 83.74420845464834,
-      "consensus": null,
+      "predicted": 83.74420845464832,
+      "predicted_wn3": 83.74420845464832,
+      "consensus": 81.0,
       "actual": null,
-      "source": null,
+      "source": "tradingeconomics",
       "model_version": "baseline-ols-v0.2-calibrated",
       "nwp_source": "cpc-ndfd"
     },
@@ -174,13 +174,13 @@
       "nwp_source": "weathernext3"
     }
   ],
-  "n_consensus_weeks": 12,
+  "n_consensus_weeks": 13,
   "n_predictions": 11,
   "paper": {
     "strategy": "surprise-qg-v0.1",
     "n_settled": 12,
     "n_open": 0,
-    "n_skipped": 0,
+    "n_skipped": 1,
     "cumulative_pnl_usd": 527.5,
     "win_rate": 0.5,
     "reasoning_hit_rate": 0.6,
@@ -353,6 +353,20 @@
         "pnl_usd": 0.0,
         "reasoning_ok": true,
         "note": "|surprise| 3.1 Bcf \u2264 5 deadband; flat, $0",
+        "source": "live"
+      },
+      {
+        "week_ending": "2026-10-30",
+        "status": "skipped",
+        "side": "flat",
+        "n_contracts": 0,
+        "predicted_surprise": 2.744208454648316,
+        "actual_surprise": null,
+        "entry_price": null,
+        "exit_price": null,
+        "pnl_usd": null,
+        "reasoning_ok": null,
+        "note": "|surprise| 2.7 Bcf \u2264 5 deadband",
         "source": "live"
       }
     ]
