@@ -1051,3 +1051,4 @@ opened_ts,settled_ts,status,strategy,ticker,event_ticker,kind,city,target_date,s
 2026-11-10T19:20:00Z,,open,near,KXRAIN-26NOV11-SEA,KXRAIN-26NOV11,rain,SEA,2026-11-11,yes,1,0.4863,0.13,0.125,0.3484,0.0079,,,,2026-11-12T09:00:00Z,paper · near · no live order
 2026-11-10T19:20:00Z,,open,far,KXRAINWKND-26NOV14-EWR,KXRAINWKND-26NOV14,rain_weekend,EWR,2026-11-14,yes,1,0.7378,0.29,0.28,0.4334,0.0144,,,,2026-11-16T05:00:00Z,paper · far · no live order
 2026-11-10T20:59:08Z,,open,near,KXHIGHTPHX-26NOV11-B83.5,KXHIGHTPHX-26NOV11,high,PHX,2026-11-11,no,1,0.3387,0.36,0.645,0.2851,0.0161,,,,2026-11-12T09:00:00Z,paper · near · no live order
+2026-11-11T09:42:55Z,,open,far,KXRAINWKND-26NOV14-NYC,KXRAINWKND-26NOV14,rain_weekend,NYC,2026-11-14,yes,1,0.682,0.21,0.205,0.4604,0.0116,,,,2026-11-16T05:00:00Z,paper · far · no live order
