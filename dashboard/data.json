@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-11-12 10:05 UTC",
+  "generated_at": "2026-11-12 21:35 UTC",
   "latest": {
-    "week_ending": "2026-11-06",
-    "predicted": 53.65964239407897,
-    "predicted_wn3": 53.65964239407897,
+    "week_ending": "2026-11-13",
+    "predicted": 62.57823794402732,
+    "predicted_wn3": 62.57823794402732,
     "consensus": null,
     "actual": null,
     "source": null,
     "model_version": "baseline-ols-v0.2-calibrated",
-    "nwp_source": "cpc-ndfd",
+    "nwp_source": "weathernext3",
     "model_minus_consensus": null
   },
   "next_week": {
-    "week_ending": "2026-11-13",
-    "predicted": 62.57823794402732,
-    "predicted_wn3": 62.57823794402732,
+    "week_ending": "2026-11-20",
+    "predicted": 8.92394723452809,
+    "predicted_wn3": 8.92394723452809,
     "consensus": null,
     "actual": null,
     "source": null,
@@ -167,9 +167,9 @@
       "week_ending": "2026-11-06",
       "predicted": 53.65964239407897,
       "predicted_wn3": 53.65964239407897,
-      "consensus": null,
+      "consensus": 66.0,
       "actual": null,
-      "source": null,
+      "source": "tradingeconomics",
       "model_version": "baseline-ols-v0.2-calibrated",
       "nwp_source": "cpc-ndfd"
     },
@@ -182,20 +182,35 @@
       "source": null,
       "model_version": "baseline-ols-v0.2-calibrated",
       "nwp_source": "weathernext3"
+    },
+    {
+      "week_ending": "2026-11-20",
+      "predicted": 8.92394723452809,
+      "predicted_wn3": 8.92394723452809,
+      "consensus": null,
+      "actual": null,
+      "source": null,
+      "model_version": "baseline-ols-v0.2-calibrated",
+      "nwp_source": "weathernext3"
     }
   ],
-  "n_consensus_weeks": 13,
-  "n_predictions": 12,
+  "n_consensus_weeks": 14,
+  "n_predictions": 13,
   "paper": {
     "strategy": "surprise-qg-v0.1",
     "n_settled": 13,
-    "n_open": 0,
+    "n_open": 1,
     "n_skipped": 0,
     "cumulative_pnl_usd": 527.5,
     "win_rate": 0.46153846153846156,
     "reasoning_hit_rate": 0.5454545454545454,
     "consecutive_losses": 0,
-    "latest_open": null,
+    "latest_open": {
+      "week_ending": "2026-11-06",
+      "side": "long",
+      "n_contracts": 1,
+      "predicted_surprise": -12.340357605921028
+    },
     "trades": [
       {
         "week_ending": "2026-08-07",
@@ -377,6 +392,20 @@
         "pnl_usd": 0.0,
         "reasoning_ok": false,
         "note": "|surprise| 2.7 Bcf \u2264 5 deadband; flat, $0",
+        "source": "live"
+      },
+      {
+        "week_ending": "2026-11-06",
+        "status": "open",
+        "side": "long",
+        "n_contracts": 1,
+        "predicted_surprise": -12.340357605921028,
+        "actual_surprise": null,
+        "entry_price": null,
+        "exit_price": null,
+        "pnl_usd": null,
+        "reasoning_ok": null,
+        "note": "standard long 1 QG on -12.3 Bcf predicted surprise",
         "source": "live"
       }
     ]
