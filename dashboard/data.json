@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-13 09:51 UTC",
+  "generated_at": "2026-11-14 09:22 UTC",
   "latest": {
     "week_ending": "2026-11-13",
     "predicted": 62.57823794402732,
@@ -13,8 +13,8 @@
   },
   "next_week": {
     "week_ending": "2026-11-20",
-    "predicted": 8.592237714877076,
-    "predicted_wn3": 8.592237714877076,
+    "predicted": 12.814347414457076,
+    "predicted_wn3": 12.814347414457076,
     "consensus": null,
     "actual": null,
     "source": null,
@@ -23,14 +23,14 @@
     "model_minus_consensus": null
   },
   "gate": {
-    "n_weeks": 10,
-    "model_mae": 8.10490942501895,
-    "consensus_mae": 4.1,
+    "n_weeks": 11,
+    "model_mae": 8.035404714191868,
+    "consensus_mae": 4.181818181818182,
     "rolling_26_model_mae": null,
     "rolling_26_consensus_mae": null,
-    "surprise_hit_rate": 0.5,
+    "surprise_hit_rate": 0.5454545454545454,
     "gate_pass": null,
-    "gate_reason": "Need 26 overlapping weeks for the rolling gate; have 10."
+    "gate_reason": "Need 26 overlapping weeks for the rolling gate; have 11."
   },
   "series": [
     {
@@ -168,7 +168,7 @@
       "predicted": 53.65964239407897,
       "predicted_wn3": 53.65964239407897,
       "consensus": 66.0,
-      "actual": null,
+      "actual": 61.0,
       "source": "tradingeconomics",
       "model_version": "baseline-ols-v0.2-calibrated",
       "nwp_source": "cpc-ndfd"
@@ -185,8 +185,8 @@
     },
     {
       "week_ending": "2026-11-20",
-      "predicted": 8.592237714877076,
-      "predicted_wn3": 8.592237714877076,
+      "predicted": 12.814347414457076,
+      "predicted_wn3": 12.814347414457076,
       "consensus": null,
       "actual": null,
       "source": null,
@@ -198,19 +198,14 @@
   "n_predictions": 13,
   "paper": {
     "strategy": "surprise-qg-v0.1",
-    "n_settled": 13,
-    "n_open": 1,
+    "n_settled": 14,
+    "n_open": 0,
     "n_skipped": 0,
-    "cumulative_pnl_usd": 527.5,
-    "win_rate": 0.46153846153846156,
-    "reasoning_hit_rate": 0.5454545454545454,
+    "cumulative_pnl_usd": 1372.5,
+    "win_rate": 0.5,
+    "reasoning_hit_rate": 0.5833333333333334,
     "consecutive_losses": 0,
-    "latest_open": {
-      "week_ending": "2026-11-06",
-      "side": "long",
-      "n_contracts": 1,
-      "predicted_surprise": -12.340357605921028
-    },
+    "latest_open": null,
     "trades": [
       {
         "week_ending": "2026-08-07",
@@ -396,16 +391,16 @@
       },
       {
         "week_ending": "2026-11-06",
-        "status": "open",
+        "status": "settled",
         "side": "long",
         "n_contracts": 1,
         "predicted_surprise": -12.340357605921028,
-        "actual_surprise": null,
-        "entry_price": null,
-        "exit_price": null,
-        "pnl_usd": null,
-        "reasoning_ok": null,
-        "note": "standard long 1 QG on -12.3 Bcf predicted surprise",
+        "actual_surprise": -5.0,
+        "entry_price": 3.0,
+        "exit_price": 3.3399999141693115,
+        "pnl_usd": 845.0,
+        "reasoning_ok": true,
+        "note": "standard long 1 QG on -12.3 Bcf predicted surprise; reasoning held",
         "source": "live"
       }
     ]
