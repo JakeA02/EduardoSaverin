@@ -1131,3 +1131,4 @@ opened_ts,settled_ts,status,strategy,ticker,event_ticker,kind,city,target_date,s
 2026-11-18T19:57:48Z,,open,near,KXHIGHTDAL-26NOV19-B72.5,KXHIGHTDAL-26NOV19,high,DAL,2026-11-19,no,1,0.1908,0.42,0.595,0.3721,0.0171,,,,2026-11-20T09:00:00Z,paper · near · no live order
 2026-11-18T19:57:48Z,,open,near,KXHIGHMIA-26NOV19-B82.5,KXHIGHMIA-26NOV19,high,MIA,2026-11-19,no,1,0.1363,0.51,0.495,0.3362,0.0175,,,,2026-11-20T09:00:00Z,paper · near · no live order
 2026-11-18T22:15:22Z,,open,near,KXHIGHTSFO-26NOV19-B58.5,KXHIGHTSFO-26NOV19,high,SFO,2026-11-19,no,1,0.156,0.52,0.495,0.3065,0.0175,,,,2026-11-20T09:00:00Z,paper · near · no live order
+2026-11-19T10:36:43Z,,open,near,KXRAIN-26NOV20-MIA,KXRAIN-26NOV20,rain,MIA,2026-11-20,yes,1,0.8559,0.65,0.645,0.1899,0.0159,,,,2026-11-21T09:00:00Z,paper · near · no live order
