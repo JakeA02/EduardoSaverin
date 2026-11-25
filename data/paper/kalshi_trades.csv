@@ -1209,3 +1209,4 @@ opened_ts,settled_ts,status,strategy,ticker,event_ticker,kind,city,target_date,s
 2026-11-25T21:15:21Z,,open,near,KXHIGHTPHX-26NOV26-B80.5,KXHIGHTPHX-26NOV26,high,PHX,2026-11-26,no,1,0.2773,0.41,0.6,0.2958,0.0169,,,,2026-11-27T09:00:00Z,paper · near · no live order
 2026-11-25T21:15:21Z,,open,near,KXHIGHTATL-26NOV26-B51.5,KXHIGHTATL-26NOV26,high,ATL,2026-11-26,no,1,0.2015,0.49,0.515,0.291,0.0175,,,,2026-11-27T09:00:00Z,paper · near · no live order
 2026-11-25T21:15:21Z,,open,near,KXHIGHLAX-26NOV26-B82.5,KXHIGHLAX-26NOV26,high,LAX,2026-11-26,no,1,0.0747,0.65,0.355,0.2594,0.0159,,,,2026-11-27T09:00:00Z,paper · near · no live order
+2026-11-25T23:18:16Z,,open,near,KXHIGHTOKC-26NOV26-B47.5,KXHIGHTOKC-26NOV26,high,OKC,2026-11-26,no,1,0.3281,0.31,0.705,0.3469,0.015,,,,2026-11-27T09:00:00Z,paper · near · no live order
